@@ -15,12 +15,17 @@ const rawReservations = examCard
         const title = li.querySelector('a')?.textContent.trim();
         // Get date text (Mon, Feb 23, 1pm (PST))
         const dateText = li.querySelector('[data-testid="date"]')?.textContent.trim();
-       // Collect all visible text inside this reservation item
+       
+        // get location text
+        const location = li.querySelector('[data-testid="location"]')?.textContent.trim();
+        const link = li.querySelector('a')?.href;
+       
+        // Collect all visible text inside this reservation item
         const rawText = [...li.querySelectorAll("div, span")]
           .map(el => el.textContent.trim())
           .filter(t => t.length > 0);
         // Return a simple object for now; we'll parse it properly later.
-        return { title, dateText, rawText };
+        return { title, dateText, location, link, rawText };
       })
       .filter(x => x.title)
   : [];
