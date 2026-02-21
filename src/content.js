@@ -2,4 +2,29 @@
 // Content script placeholder for PrairieCalendar.
 // Will later extract PrairieTest exam reservations from the page DOM.
 
-console.log("PrairieCalendar content script loaded.");
+// Select the first exam reservation card.
+// This card contains the list of upcoming exam reservations.
+const examCard = document.querySelector("div.card.mt-4");
+
+// If the card exists, extract each <li> item inside it.
+// If not, return an empty array (safe fallback).
+const rawReservations = examCard
+  ? [...examCard.querySelectorAll("ul.list-group.list-group-flush li.list-group-item")]
+      .map(li => {
+        // Get exam title from the link
+        const title = li.querySelector('a')?.textContent.trim();
+        // Get date text (Mon, Feb 23, 1pm (PST))
+        const dateText = li.querySelector('[data-testid="date"]')?.textContent.trim();
+       // Collect all visible text inside this reservation item
+        const rawText = [...li.querySelectorAll("div, span")]
+          .map(el => el.textContent.trim())
+          .filter(t => t.length > 0);
+        // Return a simple object for now; we'll parse it properly later.
+        return { title, dateText, rawText };
+      })
+      .filter(x => x.title)
+  : [];
+// Save the raw reservations to local storage for later parsing and ICS generation.
+chrome.storage.local.set({ rawReservations }, () => {
+  console.log("rawReservations saved:", rawReservations);
+});
