@@ -1,58 +1,95 @@
 // src/parser.js
 
-// Convert date text like:
-// "Mon, Feb 23, 1pm (PST)" or "Tue, Mar 3, 7pm (PST)"
-// into a JS Date (best-effort).
-// NOTE: This is a simple parser. We'll refine timezone later.
-export function parseDateText(dateText, defaultYear = new Date().getFullYear()) {
+// Extract academic year from title like:
+// "CPSC 213 (2025W2): Lab 6"
+// Rule:
+//   W1 = Fall term (same year)
+//   W2 = Spring term (next calendar year)
+export function yearFromTitle(title, fallbackYear = new Date().getFullYear()) {
+  const match = (title || "").match(/\((\d{4})W([12])\)/);
+  if (!match) return fallbackYear;
+
+  const baseYear = Number(match[1]);
+  const term = match[2];
+
+  return term === "1" ? baseYear : baseYear + 1;
+}
+
+// Convert text like:
+// "Mon, Feb 23, 1pm (PST)"
+// into a JavaScript Date object in the local timezone.
+// The year is provided separately (derived from the title).
+export function parseDateText(dateText, year) {
   if (!dateText) return null;
 
-  // Remove day-of-week and timezone: "Mon, Feb 23, 1pm (PST)" -> "Feb 23, 1pm"
+  // Remove weekday and timezone abbreviation
+  // Example:
+  // "Mon, Feb 23, 1pm (PST)" → "Feb 23, 1pm"
   const cleaned = dateText
-    .replace(/^[A-Za-z]{3},\s*/, "")      // "Mon, "
-    .replace(/\s*\((PST|PDT)\)\s*$/, ""); // " (PST)" or " (PDT)"
+    .replace(/^[A-Za-z]{3},\s*/, "")
+    .replace(/\s*\((PST|PDT)\)\s*$/, "");
 
-  // Split "Feb 23, 1pm"
-  const m = cleaned.match(/^([A-Za-z]{3,})\s+(\d{1,2}),\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/i);
-  if (!m) return null;
+  // Match: "Feb 23, 1pm" or "Feb 23, 1:30pm"
+  const match = cleaned.match(
+    /^([A-Za-z]{3,})\s+(\d{1,2}),\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/i
+  );
+  if (!match) return null;
 
-  const [, monStr, dayStr, hourStr, minStr, ampmRaw] = m;
+  const [, monthStr, dayStr, hourStr, minuteStr, ampmRaw] = match;
+
   const day = Number(dayStr);
   let hour = Number(hourStr);
-  const minute = minStr ? Number(minStr) : 0;
+  const minute = minuteStr ? Number(minuteStr) : 0;
   const ampm = ampmRaw.toLowerCase();
 
+  // Convert 12-hour time to 24-hour time
   if (ampm === "pm" && hour !== 12) hour += 12;
   if (ampm === "am" && hour === 12) hour = 0;
 
-  // JS month index
-  const monthNames = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
-  const monIdx = monthNames.indexOf(monStr.slice(0,3).toLowerCase());
-  if (monIdx < 0) return null;
+  // Convert month name to JS month index (0–11)
+  const monthNames = [
+    "jan","feb","mar","apr","may","jun",
+    "jul","aug","sep","oct","nov","dec"
+  ];
+  const monthIndex = monthNames.indexOf(monthStr.slice(0, 3).toLowerCase());
+  if (monthIndex < 0) return null;
 
-  // Create a Date in local timezone (good enough for now)
-  return new Date(defaultYear, monIdx, day, hour, minute, 0, 0);
+  // Create Date in the browser's local timezone
+  return new Date(year, monthIndex, day, hour, minute, 0, 0);
 }
 
-// Parse duration from rawText, e.g. "50 min" or "2 h 10 min"
+// Extract duration from raw text array.
+// Supports formats like:
+//   "50 min"
+//   "2 h 10 min"
 export function parseDurationMinutes(rawTextArr) {
   const text = (rawTextArr || []).join(" ");
-  const h = text.match(/(\d+)\s*h/i);
-  const m = text.match(/(\d+)\s*min/i);
 
-  const hours = h ? Number(h[1]) : 0;
-  const mins = m ? Number(m[1]) : 0;
+  const hourMatch = text.match(/(\d+)\s*h/i);
+  const minMatch = text.match(/(\d+)\s*min/i);
 
-  const total = hours * 60 + mins;
+  const hours = hourMatch ? Number(hourMatch[1]) : 0;
+  const minutes = minMatch ? Number(minMatch[1]) : 0;
+
+  const total = hours * 60 + minutes;
   return total > 0 ? total : null;
 }
 
-// Main: convert raw reservation -> parsed reservation
+// Convert raw reservation object into a structured event object.
+// - Calculates correct academic year from title
+// - Parses start time
+// - Calculates end time using duration
+// - Returns ISO timestamps (UTC format)
 export function parseReservation(raw, defaultDurationMin = 60) {
-  const start = parseDateText(raw.dateText);
-  const durationMin = parseDurationMinutes(raw.rawText) ?? defaultDurationMin;
+  const year = yearFromTitle(raw.title);
+  const start = parseDateText(raw.dateText, year);
 
-  const end = start ? new Date(start.getTime() + durationMin * 60 * 1000) : null;
+  const durationMin =
+    parseDurationMinutes(raw.rawText) ?? defaultDurationMin;
+
+  const end = start
+    ? new Date(start.getTime() + durationMin * 60 * 1000)
+    : null;
 
   return {
     title: raw.title ?? "",
