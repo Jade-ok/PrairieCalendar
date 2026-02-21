@@ -92,6 +92,7 @@ export function parseReservation(raw, defaultDurationMin = 60) {
     : null;
 
   return {
+    id: raw.link ?? "",
     title: raw.title ?? "",
     location: raw.location ?? "",
     url: raw.link ?? "",

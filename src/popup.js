@@ -1,19 +1,3 @@
-// // Minimal popup logic (safe)
-// // No tab access, no content script injection, no messaging yet.
-
-// document.addEventListener("DOMContentLoaded", () => {
-//   const status = document.getElementById("status");
-//   const downloadBtn = document.getElementById("download-btn");
-
-//   status.textContent = "Popup loaded successfully.";
-
-//   downloadBtn.addEventListener("click", () => {
-//     alert("Not implemented yet.");
-//   });
-// });
-
-
-
 // src/popup.js
 // This popup reads raw reservations from storage,
 // parses them into structured event objects,
@@ -48,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Step 3: Save parsed results back into storage for later use (e.g., ICS generation)
     await chrome.storage.local.set({ parsedReservations });
-
     status.textContent = `Parsed ${parsedReservations.length} reservations. Check console.`;
   });
 });
