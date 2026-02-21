@@ -4,7 +4,8 @@
 // and saves the parsed results back into storage.
 
 import { parseReservation } from "./parser.js";
-import { generateICS } from "./ics.js";
+import { generateICS, downloadICSFile } from "./ics.js";
+
 document.addEventListener("DOMContentLoaded", async () => {
   const status = document.getElementById("status");
   const downloadBtn = document.getElementById("download-btn");
@@ -80,6 +81,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 5. Pass the filtered events to our ICS generator (we will build the logic for this next!)
     const icsString = generateICS(selectedEvents);
+    
+    // Trigger the download!
+    downloadICSFile(icsString);
+    
+    status.textContent = "Download complete!";
     
   });
 });
