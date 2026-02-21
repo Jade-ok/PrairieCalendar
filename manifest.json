@@ -4,9 +4,13 @@
   "version": "1.0",
 
   "action": {
-    "default_popup": "src/popup.html"
+    "default_popup": "src/popup.html",
+    "default_icon": "assets/temporaryIcon.png"
   },
 
+  "icons": {
+  "128": "assets/temporaryIcon.png"
+},
   "permissions": ["activeTab"],
 
   "content_scripts": [
