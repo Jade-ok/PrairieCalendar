@@ -2,6 +2,9 @@
 // Content script placeholder for PrairieCalendar.
 // Will later extract PrairieTest exam reservations from the page DOM.
 
+// user's local year
+const contextYear = new Date().getFullYear();
+
 // Select the first exam reservation card.
 // This card contains the list of upcoming exam reservations.
 const examCard = document.querySelector("div.card.mt-4");
@@ -29,7 +32,8 @@ const rawReservations = examCard
       })
       .filter(x => x.title)
   : [];
-// Save the raw reservations to local storage for later parsing and ICS generation.
-chrome.storage.local.set({ rawReservations }, () => {
+// save rawReservations with contextYear to local storage for later use in popup.js
+chrome.storage.local.set({ rawReservations, contextYear }, () => {
   console.log("rawReservations saved:", rawReservations);
+  console.log("contextYear saved:", contextYear);
 });
