@@ -61,7 +61,7 @@ We strongly believe that a utility tool shouldn't look like a 1990s spreadsheet.
 
 Because our team name is **BlueberryPie**, we decided to bake that identity directly into our design system. Our custom UI features a crisp "Deep Blueberry" primary color for sharp, professional branding, perfectly accented by a warm "Pie Crust" gold to make our Call-to-Action buttons pop. It is clean, modern, and exceptionally easy on the eyes during those late-night, caffeine-fueled study sessions. 
 
-## The Impact: Thinking Bigger
+## The Impact
 
 What started as a desperate attempt to organize our own UBC schedules quickly revealed a much larger opportunity. PrairieTest.com isn't just a local testing facility; it's an assessment platform heavily utilized by multiple institutions across North America.
 
@@ -72,7 +72,7 @@ The pain point of manual exam tracking isn't an isolated incident—it is a univ
 **For the Students (The Easy Way):**
 We are officially shipping this! You can grab it directly from the Chrome Web Store:
 
-👉 to be continued
+👉 to be updated
 
 Just click "Add to Chrome," and pin the extension. 
 
