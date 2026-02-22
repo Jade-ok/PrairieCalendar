@@ -5,13 +5,50 @@
     <title>PrairieCalendar</title>
     <style>
       body { width: 280px; font-family: Arial, sans-serif; padding: 12px; }
-      #status { margin: 8px 0; font-size: 13px; }
-      button { padding: 8px 10px; width: 100%; }
+
+      #status-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 8px 0;
+      }
+
+      #status {
+        font-size: 13px;
+      }
+
+      #bulk-actions {
+        display: flex;
+        gap: 4px;
+      }
+
+      #bulk-actions button {
+        padding: 4px 6px;
+        font-size: 11px;
+        width: auto;
+      }
+
+      #download-btn {
+        padding: 8px 10px;
+        width: 100%;
+      }
     </style>
   </head>
+
+
   <body>
     <h3>PrairieCalendar</h3>
-    <div id="status">Extension loaded.</div>
+
+        <!-- status + select buttons -->
+    <div id="status-row">
+      <div id="status">Extension loaded.</div>
+
+      <div id="bulk-actions">
+        <button id="select-all-btn" type="button">Select all</button>
+        <button id="deselect-all-btn" type="button">Deselect all</button>
+      </div>
+    </div>
+
 
      <!-- List container (checkbox UI renders here) -->
     <div id="reservation-list" style="margin-bottom: 12px;"></div>
