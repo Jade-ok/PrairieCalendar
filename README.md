@@ -1,5 +1,9 @@
 # PrairieCalendar
 
+![](assets/preview-main-ui.png)
+![](assets/checkbox-selection-ui.png)
+
+
 *A Chrome extension that extracts PrairieTest schedules and allows users to export them to their calendar with ease! No more manual labor to copy the schedule. Built with 🫐 by Team BlueberryPie (Jena & Jade).*
 
 ## Why We Built This
@@ -10,6 +14,8 @@ We stared at the PrairieTest interface and asked the golden question: *Why is th
 
 Enter **PrairieCalendar**: a lightweight tool designed to manage our chaotic (or endless!) exam schedules seamlessly.
 
+![](assets/export-preview-ui.png)
+
 ## What It Does
 
 PrairieCalendar turns a wall of HTML text into a neatly formatted schedule.
@@ -19,6 +25,18 @@ PrairieCalendar turns a wall of HTML text into a neatly formatted schedule.
 - **Selective Exporting:** You’ve already downloaded some schedules before? We allow users to select specific events via a clean checkbox UI!
 - **Instant `.ics` Generation:** Converts your selected schedules into a valid iCalendar file so you can drag and drop it into Apple Calendar or Outlook.
 - **Google Calendar Support (*Baking in the Oven!*):** We designed the UI for a direct Google Calendar export, but dealing with Google's API authentication takes more caffeine than we currently have. It is our official "Coming Soon" feature! For now, the button sits there looking pretty, waiting for v2.0.
+
+![](assets/real-usage-popup-overlay.png)
+
+## Built With
+
+- **Vanilla JavaScript**
+- **Chrome Extension Manifest V3**
+- **HTML, CSS**
+- **Chrome storage.local API**
+- **iCalendar (.ics) file format**
+- **Figma (UI/UX Design)**
+- **Git & GitHub**
 
 ## Under the Hood
 
@@ -58,3 +76,20 @@ Want to peek under the hood or contribute? You can run it locally:
 4. Click "Load unpacked" and select this project folder.
 5. Reload after making any changes. 
 6. You are all set! ◡̈
+
+## Permissions
+
+PrairieCalendar only requests the minimum permissions necessary to function:
+
+- **storage** — Used to store parsed reservation data locally on the user's device
+- **host permissions (PrairieTest domain)** — Allows the extension to extract reservation data from PrairieTest pages
+
+PrairieCalendar does not access or modify data on any other websites.
+
+## Contact
+
+For questions, bug reports, or feature requests, feel free to reach out:
+
+📧 team-blueberrypie@googlegroups.com
+
+![](assets/bbp_branding1.png)
