@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     checkbox.type = "checkbox";
     checkbox.value = reservation.id; // As requested, value is the URL/ID
     checkbox.id = reservation.id;    // Give it an ID so the label can attach to it
-    checkbox.checked = true;         // Let's check them all by default!
+    checkbox.checked = false;         // Let's check them all by default!
 
     // Create a label so the user knows what they are checking
     const label = document.createElement("label");
