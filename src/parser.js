@@ -91,6 +91,15 @@ export function parseReservation(raw, defaultDurationMin = 60) {
     ? new Date(start.getTime() + durationMin * 60 * 1000)
     : null;
 
+    // (For future reference - might be used in the 'notes' section in ics file.)
+    // To clean up the repetitive part in the ics file
+    // 1. Trim whitespace, 2. Remove empty lines, 3. Use Set to kill duplicates
+  const cleanedTextArray = [...new Set(
+    (raw.rawText || [])
+      .map(text => text.trim())
+      .filter(text => text.length > 0)
+  )];
+
   return {
     id: raw.link ?? "",
     title: raw.title ?? "",
@@ -98,6 +107,6 @@ export function parseReservation(raw, defaultDurationMin = 60) {
     url: raw.link ?? "",
     startISO: start ? start.toISOString() : null,
     endISO: end ? end.toISOString() : null,
-    notes: (raw.rawText || []).join("\n"),
+    notes: "",
   };
 }
