@@ -4,6 +4,8 @@
 // and saves the parsed results back into storage.
 
 import { parseReservation } from "./parser.js";
+import { generateICS, downloadICSFile } from "./ics.js";
+
 document.addEventListener("DOMContentLoaded", async () => {
   const status = document.getElementById("status");
   const downloadBtn = document.getElementById("download-btn");
@@ -52,8 +54,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     listContainer.appendChild(row);
   });
 
-  // We will handle the download button click later!
-    downloadBtn.addEventListener("click", () => {
-    console.log("Download button clicked! We need to wire this up next.");
+  // Wiring functionality of the download button 
+  // Listen for the user to click the download button
+  downloadBtn.addEventListener("click", () => {
+    // 1. Find all checkboxes that are currently checked
+    // querySelectorAll is a super powerful way to find elements using CSS selectors!
+    const checkedBoxes = document.querySelectorAll('#reservation-list input[type="checkbox"]:checked');
+
+    // 2. Extract their values (which we set to the reservation IDs earlier)
+    // Array.from() turns the NodeList from querySelectorAll into a regular JavaScript array
+    const selectedIds = Array.from(checkedBoxes).map(checkbox => checkbox.value);
+
+    // 3. Do a quick "sanity check" 
+    if (selectedIds.length === 0) {
+      status.textContent = "Please select at least one exam!";
+      return; // Stop running the function if nothing is selected
+    }
+
+    // 4. Filter the parsedReservations array to only include the ones the user selected
+    const selectedEvents = parsedReservations.filter(reservation => 
+      selectedIds.includes(reservation.id)
+    );
+
+    status.textContent = `Preparing ${selectedEvents.length} events for download...`;
+    console.log("Filtered events ready for ICS:", selectedEvents);
+
+    // 5. Pass the filtered events to our ICS generator (we will build the logic for this next!)
+    const icsString = generateICS(selectedEvents);
+    
+    // Trigger the download!
+    downloadICSFile(icsString);
+    
+    status.textContent = "Download complete!";
+    
   });
 });
