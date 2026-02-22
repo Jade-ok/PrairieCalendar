@@ -5,12 +5,18 @@
 
   "action": {
     "default_popup": "src/popup.html",
-    "default_icon": "assets/temporaryIcon.png"
+    "default_icon": {
+        "16": "assets/icon master16.png",
+        "48": "assets/icon master48.png",
+        "128": "assets/icon master128.png"
+    }
+        
   },
 
   "icons": {
-  "128": "assets/temporaryIcon.png"
-},
+    "16": "assets/icon master16.png",
+    "48": "assets/icon master48.png",
+    "128": "assets/icon master128.png"},
   "permissions": ["activeTab", "storage"],
 
   "content_scripts": [
