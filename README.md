@@ -1,7 +1,11 @@
 # PrairieCalendar
 
-![](assets/preview-main-ui.png)
-![](assets/checkbox-selection-ui.png)
+<p align="center">
+  <img src="assets/preview-main-ui.png" width="500">
+</p>
+<p align="center">
+  <img src="assets/checkbox-selection-ui.png" width="500">
+</p>
 
 
 *A Chrome extension that extracts PrairieTest schedules and allows users to export them to their calendar with ease! No more manual labor to copy the schedule. Built with 🫐 by Team BlueberryPie (Jena & Jade).*
@@ -14,7 +18,9 @@ We stared at the PrairieTest interface and asked the golden question: *Why is th
 
 Enter **PrairieCalendar**: a lightweight tool designed to manage our chaotic (or endless!) exam schedules seamlessly.
 
-![](assets/export-preview-ui.png)
+<p align="center">
+  <img src="assets/export-preview-ui.png" width="500">
+</p>
 
 ## What It Does
 
@@ -26,7 +32,10 @@ PrairieCalendar turns a wall of HTML text into a neatly formatted schedule.
 - **Instant `.ics` Generation:** Converts your selected schedules into a valid iCalendar file so you can drag and drop it into Apple Calendar or Outlook.
 - **Google Calendar Support (*Baking in the Oven!*):** We designed the UI for a direct Google Calendar export, but dealing with Google's API authentication takes more caffeine than we currently have. It is our official "Coming Soon" feature! For now, the button sits there looking pretty, waiting for v2.0.
 
-![](assets/real-usage-popup-overlay.png)
+<p align="center">
+  <img src="assets/real-usage-popup-overlay.png" width="500">
+</p>
+
 
 ## Built With
 
@@ -92,4 +101,6 @@ For questions, bug reports, or feature requests, feel free to reach out:
 
 📧 team-blueberrypie@googlegroups.com
 
-![](assets/bbp_branding1.png)
+<p align="center">
+  <img src="bbp_branding1.png" width="500">
+</p>
