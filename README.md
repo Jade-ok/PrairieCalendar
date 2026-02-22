@@ -1,10 +1,10 @@
 # PrairieCalendar
 
 <p align="center">
-  <img src="assets/preview-main-ui.png" width="500">
+  <img src="assets/preview-main-ui.png" width="600">
 </p>
 <p align="center">
-  <img src="assets/checkbox-selection-ui.png" width="500">
+  <img src="assets/checkbox-selection-ui.png" width="600">
 </p>
 
 
@@ -19,7 +19,7 @@ We stared at the PrairieTest interface and asked the golden question: *Why is th
 Enter **PrairieCalendar**: a lightweight tool designed to manage our chaotic (or endless!) exam schedules seamlessly.
 
 <p align="center">
-  <img src="assets/export-preview-ui.png" width="500">
+  <img src="assets/export-preview-ui.png" width="600">
 </p>
 
 ## What It Does
@@ -33,7 +33,7 @@ PrairieCalendar turns a wall of HTML text into a neatly formatted schedule.
 - **Google Calendar Support (*Baking in the Oven!*):** We designed the UI for a direct Google Calendar export, but dealing with Google's API authentication takes more caffeine than we currently have. It is our official "Coming Soon" feature! For now, the button sits there looking pretty, waiting for v2.0.
 
 <p align="center">
-  <img src="assets/real-usage-popup-overlay.png" width="500">
+  <img src="assets/real-usage-popup-overlay.png" width="600">
 </p>
 
 
@@ -102,5 +102,5 @@ For questions, bug reports, or feature requests, feel free to reach out:
 📧 team-blueberrypie@googlegroups.com
 
 <p align="center">
-  <img src="bbp_branding1.png" width="500">
+  <img src="assets/bbp_branding1.png" width="600">
 </p>
