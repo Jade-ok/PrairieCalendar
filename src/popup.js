@@ -1,7 +1,4 @@
 // src/popup.js
-// This popup reads raw reservations from storage,
-// parses them into structured event objects,
-// and saves the parsed results back into storage.
 
 import { parseReservation } from "./parser.js";
 import { generateICS, downloadICSFile } from "./ics.js";
@@ -9,14 +6,12 @@ import { generateICS, downloadICSFile } from "./ics.js";
 document.addEventListener("DOMContentLoaded", async () => {
   const status = document.getElementById("status");
   const downloadBtn = document.getElementById("download-btn");
-  const listContainer = document.getElementById("reservation-list"); // Grab our new container
-  // Grab the select/deselect all buttons
+  const listContainer = document.getElementById("reservation-list");
   const selectAllBtn = document.getElementById("select-all-btn");
   const deselectAllBtn = document.getElementById("deselect-all-btn");
 
   status.textContent = "Loading reservations...";
 
-  // 1. Fetch the raw data as soon as the popup opens
   const { rawReservations = [] } =
     await chrome.storage.local.get("rawReservations");
 
@@ -25,40 +20,65 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // 2. Parse the data
   const parsedReservations = rawReservations.map((r) => parseReservation(r));
-  status.textContent = `Found ${parsedReservations.length} reservations.`;
+  status.textContent = `You've got ${parsedReservations.length} schedules lined up!`;
 
-  // 3. Render the checkboxes
-  // We loop through each parsed reservation and create HTML elements for it
+  // Render checkboxes
   parsedReservations.forEach((reservation) => {
-    // Create a container for this specific row
     const row = document.createElement("div");
-    row.style.marginBottom = "8px"; // Add a little spacing
+    row.className = "reservation";
 
-    // Create the actual checkbox
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.value = reservation.id; // As requested, value is the URL/ID
-    checkbox.id = reservation.id; // Give it an ID so the label can attach to it
-    checkbox.checked = false; // Let's uncheck them all by default!
+    checkbox.value = reservation.id;
+    checkbox.id = reservation.id;
+    checkbox.checked = false;
 
-    // Create a label so the user knows what they are checking
     const label = document.createElement("label");
-    label.htmlFor = reservation.id; // Connects the label to the checkbox
-    // Format the text: "Title - Start Time"
-    label.textContent = ` ${reservation.title} - ${new Date(reservation.startISO).toLocaleString()}`;
-    label.style.fontSize = "12px";
+    label.htmlFor = reservation.id;
+    label.className = "res-label";
 
-    // Put the checkbox and label into our row
+    const titleDiv = document.createElement("div");
+    titleDiv.className = "res-title";
+    titleDiv.textContent = reservation.title;
+
+    const timeDiv = document.createElement("div");
+    timeDiv.className = "res-time";
+    timeDiv.textContent = new Date(reservation.startISO).toLocaleString();
+
+    label.appendChild(titleDiv);
+    label.appendChild(timeDiv);
+
     row.appendChild(checkbox);
     row.appendChild(label);
 
-    // Put the row into our main container on the HTML page
     listContainer.appendChild(row);
   });
 
-  // functionality of the select/deselect all buttons
+  // ✅ Drag-to-scroll (REGISTER ONCE, OUTSIDE forEach)
+  let isDown = false;
+  let startY = 0;
+  let startScrollTop = 0;
+
+  listContainer.addEventListener("mousedown", (e) => {
+    if (e.button !== 0) return;
+    isDown = true;
+    startY = e.clientY;
+    startScrollTop = listContainer.scrollTop;
+    e.preventDefault();
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!isDown) return;
+    const dy = e.clientY - startY;
+    listContainer.scrollTop = startScrollTop - dy;
+  });
+
+  window.addEventListener("mouseup", () => {
+    isDown = false;
+  });
+
+  // Select / Deselect all
   selectAllBtn?.addEventListener("click", () => {
     document
       .querySelectorAll('#reservation-list input[type="checkbox"]')
@@ -71,39 +91,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       .forEach((cb) => (cb.checked = false));
   });
 
-  // Wiring functionality of the download button
-  // Listen for the user to click the download button
+  // Download ICS
   downloadBtn.addEventListener("click", () => {
-    // 1. Find all checkboxes that are currently checked
-    // querySelectorAll is a super powerful way to find elements using CSS selectors!
     const checkedBoxes = document.querySelectorAll(
       '#reservation-list input[type="checkbox"]:checked',
     );
 
-    // 2. Extract their values (which we set to the reservation IDs earlier)
-    // Array.from() turns the NodeList from querySelectorAll into a regular JavaScript array
     const selectedIds = Array.from(checkedBoxes).map(
       (checkbox) => checkbox.value,
     );
 
-    // 3. Do a quick "sanity check"
     if (selectedIds.length === 0) {
       status.textContent = "Please select at least one exam!";
-      return; // Stop running the function if nothing is selected
+      return;
     }
 
-    // 4. Filter the parsedReservations array to only include the ones the user selected
     const selectedEvents = parsedReservations.filter((reservation) =>
       selectedIds.includes(reservation.id),
     );
 
     status.textContent = `Preparing ${selectedEvents.length} events for download...`;
-    console.log("Filtered events ready for ICS:", selectedEvents);
 
-    // 5. Pass the filtered events to our ICS generator (we will build the logic for this next!)
     const icsString = generateICS(selectedEvents);
-
-    // Trigger the download!
     downloadICSFile(icsString);
 
     status.textContent = "Download complete!";

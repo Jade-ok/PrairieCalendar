@@ -3,57 +3,65 @@
   <head>
     <meta charset="utf-8" />
     <title>PrairieCalendar</title>
-    <style>
-      body { width: 280px; font-family: Arial, sans-serif; padding: 12px; }
-
-      #status-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 8px 0;
-      }
-
-      #status {
-        font-size: 13px;
-      }
-
-      #bulk-actions {
-        display: flex;
-        gap: 4px;
-      }
-
-      #bulk-actions button {
-        padding: 4px 6px;
-        font-size: 11px;
-        width: auto;
-      }
-
-      #download-btn {
-        padding: 8px 10px;
-        width: 100%;
-      }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="popup.css" />
   </head>
 
-
   <body>
-    <h3>PrairieCalendar</h3>
+    <div class="app">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-left">
+          <div class="logo-wrap">
+          
+            <!-- If your filename has spaces, keep %20 -->
+            <img class="logo-img" src="../assets/icon%20master128.png" alt="PrairieCalendar logo" />
+          </div>
+        </div>
+        <div class="header-title">PrairieCalendar</div>
+      </div>
 
-        <!-- status + select buttons -->
-    <div id="status-row">
-      <div id="status">Extension loaded.</div>
+      <!-- Controls row -->
+      <div class="controls">
+        <div id="status" class="status">You've got 0 schedules lined up!</div>
 
-      <div id="bulk-actions">
-        <button id="select-all-btn" type="button">Select all</button>
-        <button id="deselect-all-btn" type="button">Deselect all</button>
+        <div class="bulk-actions" id="bulk-actions">
+          <button id="select-all-btn" type="button" class="pill primary">Select All</button>
+          <button id="deselect-all-btn" type="button" class="pill secondary">Deselect All</button>
+        </div>
+      </div>
+
+      <!-- Scrollable list -->
+      <div id="reservation-list" class="list"></div>
+
+      <!-- Footer buttons -->
+      <div class="footer">
+        <button
+          id="export-google-btn"
+          type="button"
+          class="export-btn"
+          data-tooltip="🛎️ This feature is still baking in the oven! Check back later for direct Google Calendar sync."
+        >
+          <div class="export-text">
+            <div class="export-title">Export to</div>
+            <div class="export-subtitle">Google Calendar</div>
+          </div>
+
+          <div class="export-icon">
+<img class="export-icon-img export-icon-img--google" src="../assets/google_cal_logo.png" alt="Google Calendar" />          </div>
+        </button>
+
+        <button id="download-btn" type="button" class="export-btn">
+          <div class="export-text">
+            <div class="export-title">Export to</div>
+            <div class="export-subtitle">iCalendar</div>
+          </div>
+
+          <div class="export-icon">
+<img class="export-icon-img export-icon-img--apple" src="../assets/MacOSCalendar.png" alt="iCalendar" />          </div>
+        </button>
       </div>
     </div>
-
-
-     <!-- List container (checkbox UI renders here) -->
-    <div id="reservation-list" style="margin-bottom: 12px;"></div>
-
-    <button id="download-btn">Download .ics</button>
 
     <script type="module" src="popup.js"></script>
   </body>
