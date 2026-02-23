@@ -8,7 +8,7 @@
 </p>
 
 
-*A Chrome extension that extracts PrairieTest schedules and allows users to export them to their calendar with ease! No more manual labor to copy the schedule. Built with 🫐 by Team BlueberryPie (Jena & Jade).*
+*A Chrome extension that extracts PrairieTest schedules and allows users to export them to their calendar with ease! No more manual labor to copy the schedule. Built with ❤️ by Team BlueberryPie (Jena & Jade).*
 
 ## Why We Built This
 
@@ -16,7 +16,7 @@ Let's set the scene: You are navigating the chaotic life of a CS student at UBC.
 
 We stared at the PrairieTest interface and asked the golden question: *Why is there no "Export to Calendar" button?* We were tired of the manual data entry and the underlying anxiety of missing an exam. So, Jade and I decided to stop complaining and start coding. 
 
-Enter **PrairieCalendar**: a lightweight tool designed to manage our chaotic (or endless!) exam schedules seamlessly.
+We present to you the **PrairieCalendar**: a lightweight tool designed to manage our chaotic (or endless!) exam schedules seamlessly.
 
 <p align="center">
   <img src="assets/export-preview-ui.png" width="600">
@@ -27,7 +27,7 @@ Enter **PrairieCalendar**: a lightweight tool designed to manage our chaotic (or
 PrairieCalendar turns a wall of HTML text into a neatly formatted schedule.
 
 - **Smart Extraction:** Parses all schedule data directly from the PrairieTest webpage.
-- **Sleek UI:** Displays the full list of reservations in a clean popup, complete with custom Figma-designed icons and our signature "Deep Blueberry" and "Pie Crust" team color palette. (Because, why not?)
+- **Sleek Yet Cute UI:** Displays the full list of reservations in a clean popup, complete with custom Figma-designed icons and our signature "Deep Blueberry" and "Pie Crust" team color palette. (Because, why not?)
 - **Selective Exporting:** You’ve already downloaded some schedules before? We allow users to select specific events via a clean checkbox UI!
 - **Instant `.ics` Generation:** Converts your selected schedules into a valid iCalendar file so you can drag and drop it into Apple Calendar or Outlook.
 - **Google Calendar Support (*Baking in the Oven!*):** We designed the UI for a direct Google Calendar export, but dealing with Google's API authentication takes more caffeine than we currently have. It is our official "Coming Soon" feature! For now, the button sits there looking pretty, waiting for v2.0.
@@ -69,14 +69,14 @@ The pain point of manual exam tracking isn't an isolated incident—it is a univ
 
 ## Get the Extension!
 
-**For the Students (The Easy Way):**
+- **For the Students (The Easy Way):**
 We are officially shipping this! You can grab it directly from the Chrome Web Store:
 
 👉 to be updated
 
 Just click "Add to Chrome," and pin the extension. 
 
-**For the Devs (The Fun Way):**
+- **For the Devs (The Fun Way):**
 Want to peek under the hood or contribute? You can run it locally:
 
 1. Clone this repository.
