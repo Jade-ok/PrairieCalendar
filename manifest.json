@@ -17,7 +17,7 @@
     "16": "assets/icon master16.png",
     "48": "assets/icon master48.png",
     "128": "assets/icon master128.png"},
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["storage"],
 
   "content_scripts": [
     {
