@@ -2,6 +2,7 @@
 
 import { parseReservation } from "./parser.js";
 import { generateICS, downloadICSFile } from "./ics.js";
+import { exportToGoogleCalendar } from "./google_calendar.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const status = document.getElementById("status");
@@ -9,6 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const listContainer = document.getElementById("reservation-list");
   const selectAllBtn = document.getElementById("select-all-btn");
   const deselectAllBtn = document.getElementById("deselect-all-btn");
+  const exportGoogleBtn = document.getElementById("export-google-btn");
 
   status.textContent = "Loading reservations...";
 
@@ -116,5 +118,46 @@ document.addEventListener("DOMContentLoaded", async () => {
     downloadICSFile(icsString);
 
     status.textContent = "Download complete!";
+  });
+
+  // Export to Google Calendar
+  exportGoogleBtn?.addEventListener("click", async () => {
+    const checkedBoxes = document.querySelectorAll(
+      '#reservation-list input[type="checkbox"]:checked',
+    );
+
+    const selectedIds = Array.from(checkedBoxes).map(
+      (checkbox) => checkbox.value,
+    );
+
+    if (selectedIds.length === 0) {
+      status.textContent = "Please select at least one exam!";
+      return;
+    }
+
+    const selectedEvents = parsedReservations.filter((reservation) =>
+      selectedIds.includes(reservation.id),
+    );
+
+    status.textContent = `Exporting 0/${selectedEvents.length}...`;
+
+    try {
+      const result = await exportToGoogleCalendar(
+        selectedEvents,
+        (done, total) => {
+          status.textContent = `Exporting ${done}/${total}...`;
+        },
+      );
+
+      if (result.failed === 0 && result.skipped === 0) {
+        status.textContent = `Added ${result.success} events to Google Calendar!`;
+      } else if (result.failed === 0) {
+        status.textContent = `${result.success} added, ${result.skipped} already in calendar.`;
+      } else {
+        status.textContent = `${result.success} added, ${result.skipped} already in calendar, ${result.failed} failed.`;
+      }
+    } catch (err) {
+      status.textContent = `Google export failed: ${err.message}`;
+    }
   });
 });
