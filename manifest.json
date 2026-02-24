@@ -6,18 +6,23 @@
   "action": {
     "default_popup": "src/popup.html",
     "default_icon": {
-        "16": "assets/icon master16.png",
-        "48": "assets/icon master48.png",
-        "128": "assets/icon master128.png"
+      "16": "assets/icon master16.png",
+      "48": "assets/icon master48.png",
+      "128": "assets/icon master128.png"
     }
-        
   },
 
   "icons": {
     "16": "assets/icon master16.png",
     "48": "assets/icon master48.png",
-    "128": "assets/icon master128.png"},
-  "permissions": ["storage"],
+    "128": "assets/icon master128.png"
+  },
+  "permissions": ["storage", "identity"],
+  "host_permissions": ["https://www.googleapis.com/*"],
+  "oauth2": {
+    "client_id": "958094905068-jvdp5i9ivtfhm99imjlnkcndfastris2.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/calendar.events"]
+  },
 
   "content_scripts": [
     {
