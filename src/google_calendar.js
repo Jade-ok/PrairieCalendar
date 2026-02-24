@@ -1,37 +1,40 @@
-function getAuthToken(interactive = true) {
+function getAuthToken() {
   return new Promise((resolve, reject) => {
-    chrome.identity.getAuthToken({ interactive }, (token) => {
-      if (chrome.runtime.lastError) {
-        reject(new Error(chrome.runtime.lastError.message));
-      } else {
+    chrome.identity.getAuthToken({ interactive: false }, (token) => {
+      if (!chrome.runtime.lastError && token) {
         resolve(token);
+        return;
       }
+      chrome.identity.getAuthToken({ interactive: true }, (token2) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else {
+          resolve(token2);
+        }
+      });
     });
   });
 }
 
-function makeUID(event) {
-  return `${event.title}::${event.startISO}::${event.location}`;
-}
-
-async function findEventByUID(token, uid) {
-  const params = new URLSearchParams({
-    privateExtendedProperty: `uid=${uid}`,
-    maxResults: 1,
-  });
+async function isDuplicate(token, event) {
+  const startTime = new Date(event.startISO);
+  const params = new URLSearchParams();
+  params.set("timeMin", new Date(startTime.getTime() - 60000).toISOString());
+  params.set("timeMax", new Date(startTime.getTime() + 60000).toISOString());
+  params.set("singleEvents", "true");
   const res = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
-  if (!res.ok) return null;
+  if (!res.ok) return false;
   const data = await res.json();
-  return data.items?.length > 0 ? data.items[0] : null;
+  return (data.items ?? []).some(
+    (item) => item.summary === event.title && item.location === event.location
+  );
 }
 
 async function createCalendarEvent(token, event) {
-  const uid = makeUID(event);
-  const existing = await findEventByUID(token, uid);
-  if (existing) return { skipped: true };
+  if (await isDuplicate(token, event)) return { skipped: true };
 
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const body = {
@@ -40,7 +43,7 @@ async function createCalendarEvent(token, event) {
     description: event.url || event.notes || "",
     start: { dateTime: event.startISO, timeZone },
     end: { dateTime: event.endISO, timeZone },
-    extendedProperties: { private: { uid } },
+
   };
   const res = await fetch(
     "https://www.googleapis.com/calendar/v3/calendars/primary/events",
@@ -58,7 +61,7 @@ async function createCalendarEvent(token, event) {
 }
 
 export async function exportToGoogleCalendar(events, onProgress) {
-  const token = await getAuthToken(true);
+  const token = await getAuthToken();
   let success = 0, failed = 0, skipped = 0;
   for (let i = 0; i < events.length; i++) {
     try {
