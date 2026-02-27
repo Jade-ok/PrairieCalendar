@@ -30,7 +30,7 @@ PrairieCalendar turns a wall of HTML text into a neatly formatted schedule.
 - **Sleek Yet Cute UI:** Displays the full list of reservations in a clean popup, complete with custom Figma-designed icons and our signature "Deep Blueberry" and "Pie Crust" team color palette. (Because, why not?)
 - **Selective Exporting:** You’ve already downloaded some schedules before? We allow users to select specific events via a clean checkbox UI!
 - **Instant `.ics` Generation:** Converts your selected schedules into a valid iCalendar file so you can drag and drop it into Apple Calendar or Outlook.
-- **Google Calendar Support (*Baking in the Oven!*):** We designed the UI for a direct Google Calendar export, but dealing with Google's API authentication takes more caffeine than we currently have. It is our official "Coming Soon" feature! For now, the button sits there looking pretty, waiting for v2.0.
+- **Google Calendar Support:** Export your selected schedules directly to Google Calendar with one click. Events are added instantly via the Google Calendar API, with built-in duplicate detection so you never end up with the same exam twice.
 
 <p align="center">
   <img src="assets/real-usage-popup-overlay.png" width="600">
@@ -72,7 +72,8 @@ The pain point of manual exam tracking isn't an isolated incident—it is a univ
 - **For the Students (The Easy Way):**
 We are officially shipping this! You can grab it directly from the Chrome Web Store:
 
-👉 to be updated
+[PrairieCalendar on Chrome Web Store](https://chromewebstore.google.com/detail/PrairieCalendar/jfgdhmfkgejkgliebffeohcddbohldfk)
+
 
 Just click "Add to Chrome," and pin the extension. 
 
@@ -91,7 +92,9 @@ Want to peek under the hood or contribute? You can run it locally:
 PrairieCalendar only requests the minimum permissions necessary to function:
 
 - **storage** — Used to store parsed reservation data locally on the user's device
+- **identity** — Used to authenticate with Google for Google Calendar export
 - **host permissions (PrairieTest domain)** — Allows the extension to extract reservation data from PrairieTest pages
+- **host permissions (Google APIs)** — Required to communicate with the Google Calendar API
 
 PrairieCalendar does not access or modify data on any other websites.
 
