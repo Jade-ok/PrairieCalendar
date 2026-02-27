@@ -140,3 +140,7 @@ vite.config.ts.timestamp-*
 
 
 .DS_Store
+
+# Chrome Extension packaging files (private key - never commit!)
+*.pem
+*.crx
