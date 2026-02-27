@@ -2,7 +2,6 @@
   "manifest_version": 3,
   "name": "PrairieCalendar",
   "version": "2.0",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkHI/HojA/jn7m6PD80qlWvDv/7/7bRcnb4BDELBm7ek6X3tAvyE/uhVC70vZFWLg2OcxtNEI12Ikp/If/h2UPiRmBj/cyL5eYrBoXRkADFDiCeHNdM81wmHtnqy7Oo2DRkry7HfA3NGcKhKTP0sfDBj80zFiUpCN6DDWoxmKNv1jxTi/QBwCUTW7UAdy18/gW+fFRyWnkkaDY51XxJvp5+GxsSwbt4T9UdFvPjdTFtIYE9Gt7Aso4dLjxRzJCkQ5TRoqIoq0CvU/7U8BzzlJy0xMCxYvoFykdZ7xunzgherqNkxe4Sn7FRaLbuXS2cyscTAEeDR5gN/jukjXUan/8QIDAQAB",
 
   "action": {
     "default_popup": "src/popup.html",
@@ -21,7 +20,7 @@
   "permissions": ["storage", "identity"],
   "host_permissions": ["https://www.googleapis.com/*"],
   "oauth2": {
-    "client_id": "958094905068-ob96kt3i1bs2hjkc03if18nt0v1k4jl2.apps.googleusercontent.com",
+    "client_id": "958094905068-vahp82rrncofr53edkavo9jpfqc39e6m.apps.googleusercontent.com",
     "scopes": ["https://www.googleapis.com/auth/calendar.events"]
   },
 
