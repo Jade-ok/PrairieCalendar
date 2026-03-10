@@ -10,9 +10,11 @@
 
 *A Chrome extension that extracts PrairieTest schedules and allows users to export them to their calendar with ease! No more manual labor to copy the schedule. Built with ❤️ by Team BlueberryPie (Jena & Jade).*
 
-***WHAT'S NEW IN VER 2.1*
+***WHAT'S NEW IN VER 2.1***
 
-*Universal University Support: PrairieCalendar is now fully timezone-agnostic! Whether you are at UBC or anywhere else in North America, your schedule will sync perfectly.*
+*🌍 **Universal University Support**: Re-engineered the DOM parsing logic to dynamically extract absolute UTC timestamps and timezone data. PrairieCalendar is now 100% compatible with any university’s academic term structure across North America!*
+
+*🐛 **Bug Fix**: Removed hardcoded timezone dependencies to prevent calendar sync errors for non-PST/PDT users.*
 
 ## Why We Built This
 
