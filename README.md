@@ -10,6 +10,10 @@
 
 *A Chrome extension that extracts PrairieTest schedules and allows users to export them to their calendar with ease! No more manual labor to copy the schedule. Built with ❤️ by Team BlueberryPie (Jena & Jade).*
 
+***WHAT'S NEW IN VER 2.1*
+
+*Universal University Support: PrairieCalendar is now fully timezone-agnostic! Whether you are at UBC or anywhere else in North America, your schedule will sync perfectly.*
+
 ## Why We Built This
 
 Let's set the scene: You are navigating the chaotic life of a CS student at UBC. You are constantly checking the PrairieTest webpage to book your quizzes, examlets, and final exams. You manually copy the dates into your calendar, aggressively double-checking the location and time because—let's face it—one typo means you might sleep through a midterm.💀 Panic ensues. 😞
@@ -31,6 +35,7 @@ PrairieCalendar turns a wall of HTML text into a neatly formatted schedule.
 - **Selective Exporting:** You’ve already downloaded some schedules before? We allow users to select specific events via a clean checkbox UI!
 - **Instant `.ics` Generation:** Converts your selected schedules into a valid iCalendar file so you can drag and drop it into Apple Calendar or Outlook.
 - **Google Calendar Support:** Export your selected schedules directly to Google Calendar with one click. Events are added instantly via the Google Calendar API, with built-in duplicate detection so you never end up with the same exam twice.
+- **Universal University Support(new!):** Dynamically extracts absolute UTC timestamps directly from the PrairieTest DOM, making the extension 100% compatible with any university's academic term structure and local timezone.
 
 <p align="center">
   <img src="assets/real-usage-popup-overlay.png" width="600">
@@ -65,7 +70,7 @@ Because our team name is **BlueberryPie**, we decided to bake that identity dire
 
 What started as a desperate attempt to organize our own UBC schedules quickly revealed a much larger opportunity. PrairieTest.com isn't just a local testing facility; it's an assessment platform heavily utilized by multiple institutions across North America.
 
-The pain point of manual exam tracking isn't an isolated incident—it is a universal headache for thousands of students every single semester. By building PrairieCalendar, we aren't just solving a localized inconvenience. We have engineered a highly scalable extension that can instantly streamline the academic workflows of university students continent-wide.
+The pain point of manual exam tracking isn't an isolated incident—it is a universal headache for thousands of students every single semester. By engineering PrairieCalendar to dynamically parse DOM data and absolute UTC timestamps, we built a highly scalable extension that is entirely timezone-agnostic. We aren't just solving a localized inconvenience. We have shipped a tool capable of instantly streamlining the academic workflows of university students continent-wide.
 
 ## Get the Extension!
 
