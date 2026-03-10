@@ -2,8 +2,8 @@
 // Content script placeholder for PrairieCalendar.
 // Will later extract PrairieTest exam reservations from the page DOM.
 
-// user's local year
-const contextYear = new Date().getFullYear();
+
+// const contextYear = new Date().getFullYear();
 
 // Select the first exam reservation card.
 // This card contains the list of upcoming exam reservations.
@@ -18,6 +18,9 @@ const rawReservations = examCard
         const title = li.querySelector('a')?.textContent.trim();
         // Get date text (Mon, Feb 23, 1pm (PST))
         const dateText = li.querySelector('[data-testid="date"]')?.textContent.trim();
+
+        // Get the tooltip text from the tooltip
+        const tooltipText = li.querySelector('[data-bs-title]')?.getAttribute('data-bs-title') || "";
        
         // get location text
         const location = li.querySelector('[data-testid="location"]')?.textContent.trim();
@@ -27,13 +30,13 @@ const rawReservations = examCard
         const rawText = [...li.querySelectorAll("div, span")]
           .map(el => el.textContent.trim())
           .filter(t => t.length > 0);
+
         // Return a simple object for now; we'll parse it properly later.
-        return { title, dateText, location, link, rawText };
+        return { title, dateText, tooltipText, location, link, rawText };
       })
       .filter(x => x.title)
   : [];
 // save rawReservations with contextYear to local storage for later use in popup.js
-chrome.storage.local.set({ rawReservations, contextYear }, () => {
+chrome.storage.local.set({ rawReservations }, () => {
   console.log("rawReservations saved:", rawReservations);
-  console.log("contextYear saved:", contextYear);
 });

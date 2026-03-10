@@ -1,19 +1,13 @@
 // src/parser.js
 
-// Extract academic year from title like:
-// "CPSC 213 (2025W2): Lab 6"
-// Rule:
-//   W1 = Fall term (same year)
-//   W2 = Spring term (next calendar year)
-export function yearFromTitle(title, fallbackYear = new Date().getFullYear()) {
-  const match = (title || "").match(/\((\d{4})W([12])\)/);
-  if (!match) return fallbackYear;
-
-  const baseYear = Number(match[1]);
-  const term = match[2];
-
-  return term === "1" ? baseYear : baseYear + 1;
-}
+// Extracts the 4-digit year from the data-bs-title string
+export function extractYearFromTooltip(tooltipStr, fallbackYear = new Date().getFullYear()) {
+    if (!tooltipStr) 
+    return fallbackYear;
+    
+    const match = tooltipStr.match(/^(\d{4})/);
+    return match ? Number(match[1]) : fallbackYear;
+  }
 
 // Convert text like:
 // "Mon, Feb 23, 1pm (PST)"
@@ -27,7 +21,7 @@ export function parseDateText(dateText, year) {
   // "Mon, Feb 23, 1pm (PST)" → "Feb 23, 1pm"
   const cleaned = dateText
     .replace(/^[A-Za-z]{3},\s*/, "")
-    .replace(/\s*\((PST|PDT)\)\s*$/, "");
+    .replace(/\s*\([A-Z]{3,4}\)\s*$/, "");
 
   // Match: "Feb 23, 1pm" or "Feb 23, 1:30pm"
   const match = cleaned.match(
@@ -81,8 +75,9 @@ export function parseDurationMinutes(rawTextArr) {
 // - Calculates end time using duration
 // - Returns ISO timestamps (UTC format)
 export function parseReservation(raw, defaultDurationMin = 60) {
-  const year = yearFromTitle(raw.title);
-  const start = parseDateText(raw.dateText, year);
+//   const year = yearFromTitle(raw.title);
+  const exactYear = extractYearFromTooltip(raw.tooltipText);
+  const start = parseDateText(raw.dateText, exactYear);
 
   const durationMin =
     parseDurationMinutes(raw.rawText) ?? defaultDurationMin;
