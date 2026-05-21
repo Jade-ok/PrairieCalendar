@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home — PrairieTest (Mock)</title>
+  <!-- Bootstrap from CDN, just so it looks somewhat normal. Extension only cares about DOM structure. -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+  <!-- Navbar (simplified, no user info) -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">PrairieTest (Mock)</a>
+    </div>
+  </nav>
+
+  <main id="content" class="container">
+    <h1 class="visually-hidden">PrairieTest Homepage (Mock)</h1>
+
+    <!-- This card is the "Exams available for reservations" card. Extension does NOT look at this. -->
+    <div class="card my-4">
+      <div class="card-header bg-primary text-white">
+        <h2>Exams available for reservations</h2>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          <i>You don't currently have any exams available for reservations.</i>
+        </li>
+      </ul>
+    </div>
+
+    <!-- ⭐ THIS is the card the extension reads: div.card.mt-4 -->
+    <div class="card mt-4">
+      <div class="card-header bg-primary text-white">
+        <h2>Exam reservations</h2>
+      </div>
+      <ul class="list-group list-group-flush">
+
+        <!-- Reservation 1: Lab 9 -->
+        <li class="list-group-item">
+          <div class="container p-0">
+            <div class="row">
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="exam">
+                <a href="/pt/student/reservation/1001">
+                  CPSC 213 (2025W2): Lab 9: I/O &amp; Asynchrony
+                </a>
+              </div>
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="date">
+                <span class="js-format-date-friendly-live-update"
+                      data-bs-toggle="tooltip"
+                      data-bs-title="2026-03-23 13:00:00 (Pacific Daylight Time)">Mon, Mar&nbsp;23, 1pm (PDT)</span>
+              </div>
+              <div class="col-xxl-2 col-md-6 col-xs-12" data-testid="location">
+                ICCS X251
+              </div>
+              <div class="col-xxl-4 col-md-6 col-xs-12">
+                50 min,
+                In-person,
+                No accommodations
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- Reservation 2: Quiz 4 (CBTF location) -->
+        <li class="list-group-item">
+          <div class="container p-0">
+            <div class="row">
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="exam">
+                <a href="/pt/student/reservation/1002">
+                  CPSC 213 (2025W2): Quiz 4
+                </a>
+              </div>
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="date">
+                <span class="js-format-date-friendly-live-update"
+                      data-bs-toggle="tooltip"
+                      data-bs-title="2026-03-24 18:00:00 (Pacific Daylight Time)">Tue, Mar&nbsp;24, 6pm (PDT)</span>
+              </div>
+              <div class="col-xxl-2 col-md-6 col-xs-12" data-testid="location">
+                CBTF: <a href="https://maps.ubc.ca/?code=ICCS">ICCS 014</a>
+                <br><small class="text-muted">Basement of ICCS building</small>
+              </div>
+              <div class="col-xxl-4 col-md-6 col-xs-12">
+                50 min,
+                In-person,
+                No accommodations
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- Reservation 3: Lab 10 -->
+        <li class="list-group-item">
+          <div class="container p-0">
+            <div class="row">
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="exam">
+                <a href="/pt/student/reservation/1003">
+                  CPSC 213 (2025W2): Lab 10: Threads &amp; Synchronization
+                </a>
+              </div>
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="date">
+                <span class="js-format-date-friendly-live-update"
+                      data-bs-toggle="tooltip"
+                      data-bs-title="2026-03-30 13:00:00 (Pacific Daylight Time)">Mon, Mar&nbsp;30, 1pm (PDT)</span>
+              </div>
+              <div class="col-xxl-2 col-md-6 col-xs-12" data-testid="location">
+                ICCS X251
+              </div>
+              <div class="col-xxl-4 col-md-6 col-xs-12">
+                50 min,
+                In-person,
+                No accommodations
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- Reservation 4: Final Exam (long duration: 2 h 10 min) -->
+        <li class="list-group-item">
+          <div class="container p-0">
+            <div class="row">
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="exam">
+                <a href="/pt/student/reservation/1004">
+                  CPSC 213 (2025W2): Final Exam
+                </a>
+              </div>
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="date">
+                <span class="js-format-date-friendly-live-update"
+                      data-bs-toggle="tooltip"
+                      data-bs-title="2026-04-17 19:00:00 (Pacific Daylight Time)">Fri, Apr&nbsp;17, 7pm (PDT)</span>
+              </div>
+              <div class="col-xxl-2 col-md-6 col-xs-12" data-testid="location">
+                CBTF: <a href="https://maps.ubc.ca/?code=ICCS">ICCS 014</a>
+                <br><small class="text-muted">Basement of ICCS building</small>
+              </div>
+              <div class="col-xxl-4 col-md-6 col-xs-12">
+                2 h 10 min,
+                In-person,
+                No accommodations
+              </div>
+            </div>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+
+    <!-- Past reservations card (extension does NOT look at this — it's a separate card with no .card.mt-4 class). -->
+    <button type="button" class="btn btn-xs btn-outline-secondary my-2"
+            data-bs-toggle="collapse" data-bs-target="#pastReservations"
+            aria-expanded="false" aria-controls="pastReservations">
+      <i class="bi-caret-down-fill"></i> Show past reservations
+    </button>
+
+    <div class="card mb-4 collapse" id="pastReservations">
+      <div class="card-header bg-primary text-white">
+        <h2>Past exam reservations</h2>
+      </div>
+      <ul class="list-group list-group-flush">
+
+        <li class="list-group-item">
+          <div class="container p-0">
+            <div class="row">
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="exam">
+                CPSC 213 (2025W2): Lab 1: Numbers &amp; Memory
+              </div>
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="date">
+                <span class="js-format-date-friendly-live-update"
+                      data-bs-toggle="tooltip"
+                      data-bs-title="2026-01-12 13:00:00 (Pacific Standard Time)">Mon, Jan&nbsp;12, 1pm (PST)</span>
+              </div>
+              <div class="col-xxl-2 col-md-6 col-xs-12" data-testid="location">
+                ICCS X251
+              </div>
+              <div class="col-xxl-4 col-md-6 col-xs-12">
+                50 min, In-person, No accommodations
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="list-group-item">
+          <div class="container p-0">
+            <div class="row">
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="exam">
+                CPSC 213 (2025W2): Quiz 3
+              </div>
+              <div class="col-xxl-3 col-md-6 col-xs-12" data-testid="date">
+                <span class="js-format-date-friendly-live-update"
+                      data-bs-toggle="tooltip"
+                      data-bs-title="2026-03-03 20:00:00 (Pacific Standard Time)">Tue, Mar&nbsp;3, 8pm (PST)</span>
+              </div>
+              <div class="col-xxl-2 col-md-6 col-xs-12" data-testid="location">
+                CBTF: <a href="https://maps.ubc.ca/?code=ICCS">ICCS 014</a>
+              </div>
+              <div class="col-xxl-4 col-md-6 col-xs-12">
+                50 min, In-person, No accommodations
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- (Other past reservations omitted for brevity. Add more if needed for past-reservation testing.) -->
+
+      </ul>
+    </div>
+
+    <!-- Testing center availability card (extension does NOT look at this). -->
+    <div class="card my-4">
+      <div class="card-header bg-primary text-white">
+        <h2>Testing center availability</h2>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          <a href="#">CBTF (2025W2): UBC CBTF</a>
+        </li>
+      </ul>
+    </div>
+
+  </main>
+</body>
+</html>
