@@ -25,10 +25,14 @@
     "scopes": ["https://www.googleapis.com/auth/calendar.events"]
   },
 
-  "content_scripts": [
-    {
-      "matches": ["https://us.prairietest.com/*"],
-      "js": ["src/content.js"]
-    }
-  ]
+"content_scripts": [
+  {
+    "matches": [
+      "https://us.prairietest.com/*",
+      "http://localhost/*",
+      "http://127.0.0.1/*"
+    ],
+    "js": ["src/content.js"]
+  }
+]
 }
