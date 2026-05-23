@@ -10,6 +10,9 @@
 
 *A Chrome extension that extracts PrairieTest schedules and allows users to export them to their calendar with ease! No more manual labor to copy the schedule. Built with ❤️ by Team BlueberryPie (Jena & Jade).*
 
+***WHAT'S NEW IN VER 2.2***
+*🦁 **Brave Browser Support**: Google Calendar export now works seamlessly in Brave! The extension automatically detects Brave and uses the appropriate OAuth flow.*
+
 ***WHAT'S NEW IN VER 2.1***
 
 *🌍 **Universal University Support**: Re-engineered the DOM parsing logic to dynamically extract absolute UTC timestamps and timezone data. PrairieCalendar is now 100% compatible with any university’s academic term structure across North America!*
@@ -82,7 +85,8 @@ We are officially shipping this! You can grab it directly from the Chrome Web St
 [PrairieCalendar on Chrome Web Store](https://chromewebstore.google.com/detail/PrairieCalendar/jfgdhmfkgejkgliebffeohcddbohldfk)
 
 
-Just click "Add to Chrome," and pin the extension. 
+Just click "Add to Chrome" (or **"Add to Brave"** if you're a Brave user — same extension, no extra setup needed!), and pin the extension. 
+
 
 - **For the Devs (The Fun Way):**
 Want to peek under the hood or contribute? You can run it locally:
