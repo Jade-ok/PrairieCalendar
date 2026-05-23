@@ -1,4 +1,60 @@
-function getAuthToken() {
+// ====================================
+// OAuth client ID for Brave compatibility
+// ====================================
+// chrome.identity.getAuthToken does not work in Brave
+// (it throws "Custom URI scheme not supported on Chrome apps")
+// For Brave users, we use launchWebAuthFlow with a Web Application client
+const BRAVE_OAUTH_CLIENT_ID =
+  "958094905068-rv830auvkppner94h8e7irdg7s2njcie.apps.googleusercontent.com";
+
+// Check if the browser is Brave
+async function isBraveBrowser() {
+  return !!(navigator.brave && (await navigator.brave.isBrave?.()));
+}
+
+// For Brave: get an OAuth token using launchWebAuthFlow
+async function getAuthTokenViaWebAuthFlow() {
+  const redirectUri = chrome.identity.getRedirectURL();
+  const scope = "https://www.googleapis.com/auth/calendar.events";
+
+  const authUrl =
+    `https://accounts.google.com/o/oauth2/auth?` +
+    `client_id=${BRAVE_OAUTH_CLIENT_ID}` +
+    `&response_type=token` +
+    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+    `&scope=${encodeURIComponent(scope)}`;
+
+  return new Promise((resolve, reject) => {
+    chrome.identity.launchWebAuthFlow(
+      { url: authUrl, interactive: true },
+      (redirectUrl) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        // Extract access_token from the hash in the redirect URL
+        // Example: https://....chromiumapp.org/#access_token=xxx&...
+        const url = new URL(redirectUrl);
+        const params = new URLSearchParams(url.hash.substring(1));
+        const token = params.get("access_token");
+
+        if (token) {
+          resolve(token);
+        } else {
+          reject(new Error("Access token not found in redirect URL"));
+        }
+      }
+    );
+  });
+}
+
+async function getAuthToken() {
+  // If browser is Brave, use launchWebAuthFlow (getAuthToken doesn't work in Brave)
+  if (await isBraveBrowser()) {
+    return getAuthTokenViaWebAuthFlow();
+  }
+
+  // For Chrome and other Chromium browsers, use the original getAuthToken flow
   return new Promise((resolve, reject) => {
     chrome.identity.getAuthToken({ interactive: false }, (token) => {
       if (!chrome.runtime.lastError && token) {
