@@ -1,28 +1,34 @@
-// ====================================
-// OAuth client ID for Brave compatibility
-// ====================================
-// chrome.identity.getAuthToken does not work in Brave
-// (it throws "Custom URI scheme not supported on Chrome apps")
-// For Brave users, we use launchWebAuthFlow with a Web Application client
-const BRAVE_OAUTH_CLIENT_ID =
+const WEBFLOW_OAUTH_CLIENT_ID =
   "958094905068-rv830auvkppner94h8e7irdg7s2njcie.apps.googleusercontent.com";
 
-// Check if the browser is Brave
+const GOOGLE_CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.events";
+
 async function isBraveBrowser() {
   return !!(navigator.brave && (await navigator.brave.isBrave?.()));
 }
 
-// For Brave: get an OAuth token using launchWebAuthFlow
+function isGoogleChromeBrowser() {
+  const brands = navigator.userAgentData?.brands ?? [];
+  if (brands.length > 0) {
+    return brands.some((brand) => brand.brand === "Google Chrome");
+  }
+
+  const userAgent = navigator.userAgent;
+  return (
+    /\bChrome\//.test(userAgent) &&
+    !/\b(Arc|Brave|Edg|OPR|Opera|Vivaldi)\//.test(userAgent)
+  );
+}
+
 async function getAuthTokenViaWebAuthFlow() {
   const redirectUri = chrome.identity.getRedirectURL();
-  const scope = "https://www.googleapis.com/auth/calendar.events";
 
   const authUrl =
     `https://accounts.google.com/o/oauth2/auth?` +
-    `client_id=${BRAVE_OAUTH_CLIENT_ID}` +
+    `client_id=${WEBFLOW_OAUTH_CLIENT_ID}` +
     `&response_type=token` +
     `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-    `&scope=${encodeURIComponent(scope)}`;
+    `&scope=${encodeURIComponent(GOOGLE_CALENDAR_SCOPE)}`;
 
   return new Promise((resolve, reject) => {
     chrome.identity.launchWebAuthFlow(
@@ -32,8 +38,6 @@ async function getAuthTokenViaWebAuthFlow() {
           reject(new Error(chrome.runtime.lastError.message));
           return;
         }
-        // Extract access_token from the hash in the redirect URL
-        // Example: https://....chromiumapp.org/#access_token=xxx&...
         const url = new URL(redirectUrl);
         const params = new URLSearchParams(url.hash.substring(1));
         const token = params.get("access_token");
@@ -48,19 +52,14 @@ async function getAuthTokenViaWebAuthFlow() {
   });
 }
 
-async function getAuthToken() {
-  // If browser is Brave, use launchWebAuthFlow (getAuthToken doesn't work in Brave)
-  if (await isBraveBrowser()) {
-    return getAuthTokenViaWebAuthFlow();
-  }
-
-  // For Chrome and other Chromium browsers, use the original getAuthToken flow
+function getAuthTokenViaChromeIdentity() {
   return new Promise((resolve, reject) => {
     chrome.identity.getAuthToken({ interactive: false }, (token) => {
       if (!chrome.runtime.lastError && token) {
         resolve(token);
         return;
       }
+
       chrome.identity.getAuthToken({ interactive: true }, (token2) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
@@ -70,6 +69,18 @@ async function getAuthToken() {
       });
     });
   });
+}
+
+async function getAuthToken() {
+  if (await isBraveBrowser()) {
+    return getAuthTokenViaWebAuthFlow();
+  }
+
+  if (isGoogleChromeBrowser()) {
+    return getAuthTokenViaChromeIdentity();
+  }
+
+  return getAuthTokenViaWebAuthFlow();
 }
 
 async function isDuplicate(token, event) {
@@ -99,7 +110,6 @@ async function createCalendarEvent(token, event) {
     description: event.url || event.notes || "",
     start: { dateTime: event.startISO, timeZone },
     end: { dateTime: event.endISO, timeZone },
-
   };
   const res = await fetch(
     "https://www.googleapis.com/calendar/v3/calendars/primary/events",
