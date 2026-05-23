@@ -10,6 +10,10 @@
 
 *A Chrome extension that extracts PrairieTest schedules and allows users to export them to their calendar with ease! No more manual labor to copy the schedule. Built with ❤️ by Team BlueberryPie (Jena & Jade).*
 
+***WHAT'S NEW IN VER 2.2***
+
+*🌐 **Expanded Browser Support**: Google Calendar export now works across Chrome, Brave, Arc, and Microsoft Edge. Chrome keeps its native Google sign-in flow, while supported Chromium-based browsers use a compatible OAuth flow.*
+
 ***WHAT'S NEW IN VER 2.1***
 
 *🌍 **Universal University Support**: Re-engineered the DOM parsing logic to dynamically extract absolute UTC timestamps and timezone data. PrairieCalendar is now 100% compatible with any university’s academic term structure across North America!*
@@ -36,7 +40,7 @@ PrairieCalendar turns a wall of HTML text into a neatly formatted schedule.
 - **Sleek Yet Cute UI:** Displays the full list of reservations in a clean popup, complete with custom Figma-designed icons and our signature "Deep Blueberry" and "Pie Crust" team color palette. (Because, why not?)
 - **Selective Exporting:** You’ve already downloaded some schedules before? We allow users to select specific events via a clean checkbox UI!
 - **Instant `.ics` Generation:** Converts your selected schedules into a valid iCalendar file so you can drag and drop it into Apple Calendar or Outlook.
-- **Google Calendar Support:** Export your selected schedules directly to Google Calendar with one click. Events are added instantly via the Google Calendar API, with built-in duplicate detection so you never end up with the same exam twice.
+- **Google Calendar Support:** Export your selected schedules directly to Google Calendar with one click. Events are added instantly via the Google Calendar API, with built-in duplicate detection and expanded support for Chrome, Brave, Arc, and Microsoft Edge.
 - **Universal University Support(new!):** Dynamically extracts absolute UTC timestamps directly from the PrairieTest DOM, making the extension 100% compatible with any university's academic term structure and local timezone.
 
 <p align="center">
@@ -82,7 +86,7 @@ We are officially shipping this! You can grab it directly from the Chrome Web St
 [PrairieCalendar on Chrome Web Store](https://chromewebstore.google.com/detail/PrairieCalendar/jfgdhmfkgejkgliebffeohcddbohldfk)
 
 
-Just click "Add to Chrome," and pin the extension. 
+Just click "Add to Chrome," then pin the extension. PrairieCalendar also supports Brave, Arc, and Microsoft Edge when installed as a Chromium extension.
 
 - **For the Devs (The Fun Way):**
 Want to peek under the hood or contribute? You can run it locally:
