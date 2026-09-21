@@ -144,3 +144,11 @@ vite.config.ts.timestamp-*
 # Chrome Extension packaging files (private key - never commit!)
 *.pem
 *.crx
+
+# Saved web pages. A capture of a logged-in PrairieTest page carries the
+# capturing user's name, email and session tokens, so keep captures local and
+# commit scrubbed fixtures under tests/fixtures/ instead.
+*_files/
+
+# Chrome Extension packaging artifacts
+*.zip
