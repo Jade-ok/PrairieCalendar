@@ -49,10 +49,6 @@ function foldICSLine(line) {
   return segments.join(CRLF);
 }
 
-function formatICSURI(value) {
-  return String(value ?? "").trim().replace(/[\r\n]/g, "");
-}
-
 function validateEvent(event) {
   const title = event?.title || "Untitled event";
   let formattedStart;
@@ -122,9 +118,6 @@ export function generateICS(events) {
       `LOCATION:${escapeICSText(event.location)}`,
       `DESCRIPTION:${escapeICSText(description)}`,
     );
-
-    const eventURL = formatICSURI(event.url);
-    if (eventURL) lines.push(`URL:${eventURL}`);
 
     lines.push("END:VEVENT");
   });
