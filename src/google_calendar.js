@@ -94,51 +94,37 @@ async function readGoogleError(res, fallbackMessage) {
   }
 }
 
-export async function fetchExistingCalendarEvents(token, events) {
-  if (events.length === 0) return [];
-
-  const startTimes = events.map((event) => new Date(event.startISO).getTime());
-  if (startTimes.some(Number.isNaN)) {
+// Ask Google only about the minute around this exam. A duplicate is an event at
+// the same time with the same title and location, so a wider window would read
+// calendar data the check has no use for.
+export async function isDuplicateCalendarEvent(token, event) {
+  const startTime = new Date(event.startISO).getTime();
+  if (Number.isNaN(startTime)) {
     throw new Error("Cannot check Google Calendar with an invalid start time.");
   }
 
   const params = new URLSearchParams();
-  params.set("timeMin", new Date(Math.min(...startTimes) - 60000).toISOString());
-  params.set("timeMax", new Date(Math.max(...startTimes) + 60000).toISOString());
+  params.set("timeMin", new Date(startTime - 60000).toISOString());
+  params.set("timeMax", new Date(startTime + 60000).toISOString());
   params.set("singleEvents", "true");
-  params.set("maxResults", "2500");
 
-  const existingEvents = [];
-  let pageToken = null;
+  const res = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
 
-  do {
-    if (pageToken) params.set("pageToken", pageToken);
-
-    const res = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
-      { headers: { Authorization: `Bearer ${token}` } },
+  // A failed lookup is not an answer. Reporting "no duplicate" here would let the
+  // caller create an event that is already in the calendar.
+  if (!res.ok) {
+    const message = await readGoogleError(
+      res,
+      "Failed to check Google Calendar for existing events.",
     );
+    throw new Error(`Failed to check Google Calendar: ${message}`);
+  }
 
-    if (!res.ok) {
-      const message = await readGoogleError(
-        res,
-        "Failed to check Google Calendar for existing events.",
-      );
-      throw new Error(`Failed to check Google Calendar: ${message}`);
-    }
-
-    const data = await res.json();
-    existingEvents.push(...(data.items ?? []));
-    pageToken = data.nextPageToken ?? null;
-  } while (pageToken);
-
-  return existingEvents;
-}
-
-export function isDuplicateCalendarEvent(existingEvents, event) {
-  const eventStart = new Date(event.startISO).getTime();
-
-  return existingEvents.some((item) => {
+  const data = await res.json();
+  return (data.items ?? []).some((item) => {
     const existingStart = new Date(
       item.start?.dateTime ?? item.start?.date,
     ).getTime();
@@ -147,7 +133,7 @@ export function isDuplicateCalendarEvent(existingEvents, event) {
       item.summary === event.title &&
       item.location === event.location &&
       Number.isFinite(existingStart) &&
-      Math.abs(existingStart - eventStart) <= 60000
+      Math.abs(existingStart - startTime) <= 60000
     );
   });
 }
@@ -177,20 +163,18 @@ async function createCalendarEvent(token, event) {
 }
 
 export async function exportEventsWithToken(token, events, onProgress) {
-  const existingEvents = await fetchExistingCalendarEvents(token, events);
   let success = 0, failed = 0, skipped = 0;
 
   for (let i = 0; i < events.length; i++) {
     try {
-      if (isDuplicateCalendarEvent(existingEvents, events[i])) {
+      // A lookup that throws leaves this exam counted as failed, so a Google
+      // outage skips the export rather than duplicating what is already there.
+      if (await isDuplicateCalendarEvent(token, events[i])) {
         skipped++;
-        onProgress?.(i + 1, events.length);
-        continue;
+      } else {
+        await createCalendarEvent(token, events[i]);
+        success++;
       }
-
-      const result = await createCalendarEvent(token, events[i]);
-      existingEvents.push(result);
-      success++;
     } catch {
       failed++;
     }

@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 
 import {
   exportEventsWithToken,
-  fetchExistingCalendarEvents,
   isDuplicateCalendarEvent,
 } from "../src/google_calendar.js";
 
@@ -28,27 +27,21 @@ const events = [
   },
 ];
 
-test("fetchExistingCalendarEvents checks the full export range in one request", async (t) => {
+test("isDuplicateCalendarEvent asks only about the minute around the exam", async (t) => {
   const requests = [];
   t.mock.method(globalThis, "fetch", async (url) => {
     requests.push(new URL(url));
     return new Response(JSON.stringify({ items: [] }), { status: 200 });
   });
 
-  await fetchExistingCalendarEvents("token", events);
+  await isDuplicateCalendarEvent("token", events[0]);
 
   assert.equal(requests.length, 1);
-  assert.equal(
-    requests[0].searchParams.get("timeMin"),
-    "2026-10-03T22:59:00.000Z",
-  );
-  assert.equal(
-    requests[0].searchParams.get("timeMax"),
-    "2026-10-10T20:01:00.000Z",
-  );
+  assert.equal(requests[0].searchParams.get("timeMin"), "2026-10-03T22:59:00.000Z");
+  assert.equal(requests[0].searchParams.get("timeMax"), "2026-10-03T23:01:00.000Z");
 });
 
-test("fetchExistingCalendarEvents reports lookup failures instead of creating duplicates", async (t) => {
+test("isDuplicateCalendarEvent reports lookup failures instead of answering no", async (t) => {
   t.mock.method(globalThis, "fetch", async () =>
     new Response(
       JSON.stringify({ error: { message: "Calendar API unavailable" } }),
@@ -57,23 +50,27 @@ test("fetchExistingCalendarEvents reports lookup failures instead of creating du
   );
 
   await assert.rejects(
-    fetchExistingCalendarEvents("token", events),
+    isDuplicateCalendarEvent("token", events[0]),
     /Failed to check Google Calendar: Calendar API unavailable/,
   );
 });
 
-test("isDuplicateCalendarEvent matches title, location, and start time", () => {
-  const existing = [{
-    summary: events[0].title,
-    location: events[0].location,
-    start: { dateTime: "2026-10-03T16:00:00-07:00" },
-  }];
+test("isDuplicateCalendarEvent matches title, location, and start time", async (t) => {
+  t.mock.method(globalThis, "fetch", async () =>
+    new Response(JSON.stringify({
+      items: [{
+        summary: events[0].title,
+        location: events[0].location,
+        start: { dateTime: "2026-10-03T16:00:00-07:00" },
+      }],
+    }), { status: 200 }),
+  );
 
-  assert.equal(isDuplicateCalendarEvent(existing, events[0]), true);
-  assert.equal(isDuplicateCalendarEvent(existing, events[1]), false);
+  assert.equal(await isDuplicateCalendarEvent("token", events[0]), true);
+  assert.equal(await isDuplicateCalendarEvent("token", events[1]), false);
 });
 
-test("Google export reuses one duplicate lookup and sends the shared description", async (t) => {
+test("Google export skips duplicates and sends the shared description", async (t) => {
   const requests = [];
   t.mock.method(globalThis, "fetch", async (url, options = {}) => {
     requests.push({ url: String(url), options });
@@ -98,10 +95,12 @@ test("Google export reuses one duplicate lookup and sends the shared description
   const result = await exportEventsWithToken("token", events);
 
   assert.deepEqual(result, { success: 1, failed: 0, skipped: 1 });
-  assert.equal(requests.length, 2);
-  assert.equal(requests.filter(({ options }) => !options.method).length, 1);
+  // One lookup per exam, plus one creation for the exam that was not a duplicate.
+  assert.equal(requests.filter(({ options }) => !options.method).length, 2);
 
-  const created = JSON.parse(requests[1].options.body);
+  const created = JSON.parse(
+    requests.find(({ options }) => options.method === "POST").options.body,
+  );
   assert.equal(
     created.description,
     "https://us.prairietest.com/reservation/2",
