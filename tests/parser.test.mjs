@@ -50,6 +50,8 @@ test("parseReservation rejects legacy data without a canonical timestamp", () =>
 
 test("parseDurationMinutes supports minute and hour durations", () => {
   assert.equal(parseDurationMinutes("50 min, In-person"), 50);
+  // PrairieTest renders this column without a space: "50min, In-person, ..."
+  assert.equal(parseDurationMinutes("50min, In-person"), 50);
   assert.equal(parseDurationMinutes("2 h 10 min, In-person"), 130);
   assert.equal(parseDurationMinutes("1 hour 5 minutes"), 65);
 });

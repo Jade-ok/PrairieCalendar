@@ -60,7 +60,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const timeDiv = document.createElement("div");
     timeDiv.className = "res-time";
-    timeDiv.textContent = new Date(reservation.startISO).toLocaleString();
+    timeDiv.textContent = new Date(reservation.startISO).toLocaleString(
+      undefined,
+      { dateStyle: "medium", timeStyle: "short" },
+    );
 
     label.appendChild(titleDiv);
     label.appendChild(timeDiv);
