@@ -35,7 +35,7 @@ test("parseReservation prefers the canonical timestamp over displayed text", () 
   assert.equal(event.timeZone, "Canada/Pacific");
 });
 
-test("parseReservation retains visible-text fallback for legacy stored data", () => {
+test("parseReservation rejects legacy data without a canonical timestamp", () => {
   const event = parseReservation({
     title: "Legacy Exam",
     dateText: "Mon, Mar 23, 4pm (PDT)",
@@ -43,5 +43,6 @@ test("parseReservation retains visible-text fallback for legacy stored data", ()
     rawText: ["60 min"],
   });
 
-  assert.notEqual(event.startISO, null);
+  assert.equal(event.startISO, null);
+  assert.equal(event.endISO, null);
 });

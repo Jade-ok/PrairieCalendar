@@ -23,6 +23,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   const parsedReservations = rawReservations.map((r) => parseReservation(r));
+
+  if (parsedReservations.some((reservation) => !reservation.startISO)) {
+    status.textContent =
+      "Reservation time data is outdated. Refresh the PrairieTest Home page and reopen PrairieCalendar.";
+    return;
+  }
+
   status.textContent = `You've got ${parsedReservations.length} schedules lined up!`;
 
   // Render checkboxes
