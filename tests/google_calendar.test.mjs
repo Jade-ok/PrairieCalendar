@@ -94,7 +94,7 @@ test("Google export skips duplicates and sends the shared description", async (t
 
   const result = await exportEventsWithToken("token", events);
 
-  assert.deepEqual(result, { success: 1, failed: 0, skipped: 1 });
+  assert.deepEqual(result, { success: 1, failed: 0, skipped: 1, unchecked: 0 });
   // One lookup per exam, plus one creation for the exam that was not a duplicate.
   assert.equal(requests.filter(({ options }) => !options.method).length, 2);
 
@@ -105,4 +105,25 @@ test("Google export skips duplicates and sends the shared description", async (t
     created.description,
     "https://us.prairietest.com/reservation/2",
   );
+});
+
+test("a failed duplicate lookup still adds the exam and reports it", async (t) => {
+  const posts = [];
+  t.mock.method(globalThis, "fetch", async (url, options = {}) => {
+    if (options.method === "POST") {
+      posts.push(JSON.parse(options.body));
+      return new Response(JSON.stringify({}), { status: 200 });
+    }
+    // The lookup is down; the create still works.
+    return new Response(
+      JSON.stringify({ error: { message: "Calendar API unavailable" } }),
+      { status: 503 },
+    );
+  });
+
+  const result = await exportEventsWithToken("token", events);
+
+  // Missing an exam is worse than a second copy, so both are created.
+  assert.deepEqual(result, { success: 2, failed: 0, skipped: 0, unchecked: 2 });
+  assert.equal(posts.length, 2);
 });

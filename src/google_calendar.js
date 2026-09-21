@@ -163,13 +163,22 @@ async function createCalendarEvent(token, event) {
 }
 
 export async function exportEventsWithToken(token, events, onProgress) {
-  let success = 0, failed = 0, skipped = 0;
+  let success = 0, failed = 0, skipped = 0, unchecked = 0;
 
   for (let i = 0; i < events.length; i++) {
     try {
-      // A lookup that throws leaves this exam counted as failed, so a Google
-      // outage skips the export rather than duplicating what is already there.
-      if (await isDuplicateCalendarEvent(token, events[i])) {
+      let duplicate = false;
+      try {
+        duplicate = await isDuplicateCalendarEvent(token, events[i]);
+      } catch {
+        // The lookup failed, so we do not know. Add the exam anyway: a missing
+        // exam costs the user a reminder they were counting on, while a second
+        // copy costs them one deletion. The count is reported so they know to
+        // look.
+        unchecked++;
+      }
+
+      if (duplicate) {
         skipped++;
       } else {
         await createCalendarEvent(token, events[i]);
@@ -180,7 +189,7 @@ export async function exportEventsWithToken(token, events, onProgress) {
     }
     onProgress?.(i + 1, events.length);
   }
-  return { success, failed, skipped };
+  return { success, failed, skipped, unchecked };
 }
 
 export async function exportToGoogleCalendar(events, onProgress) {

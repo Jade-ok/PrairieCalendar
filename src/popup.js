@@ -177,13 +177,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         },
       );
 
-      if (result.failed === 0 && result.skipped === 0) {
-        status.textContent = `Added ${result.success} events to Google Calendar!`;
-      } else if (result.failed === 0) {
-        status.textContent = `${result.success} added, ${result.skipped} already in calendar.`;
-      } else {
-        status.textContent = `${result.success} added, ${result.skipped} already in calendar, ${result.failed} failed.`;
-      }
+      const parts = [`${result.success} added`];
+      if (result.skipped > 0) parts.push(`${result.skipped} already in calendar`);
+      if (result.failed > 0) parts.push(`${result.failed} failed`);
+
+      // Only worth mentioning when something actually went in that we could not
+      // check first; if nothing was added there is nothing to look for.
+      status.textContent =
+        result.unchecked > 0 && result.success > 0
+          ? `${parts.join(", ")}. Could not check for duplicates — look for repeats.`
+          : `${parts.join(", ")}.`;
     } catch (err) {
       status.textContent = `Google export failed: ${err.message}`;
     }
