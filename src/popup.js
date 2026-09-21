@@ -23,7 +23,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   const parsedReservations = rawReservations.map((r) => parseReservation(r));
-  status.textContent = `You've got ${parsedReservations.length} schedules lined up!`;
+
+  if (parsedReservations.some((reservation) => !reservation.startISO)) {
+    status.textContent =
+      "Reservation time data is outdated. Refresh the PrairieTest Home page and reopen PrairieCalendar.";
+    return;
+  }
+
+  const estimatedCount = parsedReservations.filter(
+    (reservation) => reservation.endTimeEstimated,
+  ).length;
+
+  status.textContent =
+    estimatedCount === 0
+      ? `You've got ${parsedReservations.length} schedules lined up!`
+      : `You've got ${parsedReservations.length} schedules lined up! Check the exam time on ${estimatedCount} of them.`;
 
   // Render checkboxes
   parsedReservations.forEach((reservation) => {
@@ -46,10 +60,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const timeDiv = document.createElement("div");
     timeDiv.className = "res-time";
-    timeDiv.textContent = new Date(reservation.startISO).toLocaleString();
+    timeDiv.textContent = new Date(reservation.startISO).toLocaleString(
+      undefined,
+      { dateStyle: "medium", timeStyle: "short" },
+    );
 
     label.appendChild(titleDiv);
     label.appendChild(timeDiv);
+
+    if (reservation.endTimeEstimated) {
+      const noticeDiv = document.createElement("div");
+      noticeDiv.className = "res-notice";
+      noticeDiv.textContent = "Check the exam time";
+      label.appendChild(noticeDiv);
+    }
 
     row.appendChild(checkbox);
     row.appendChild(label);
@@ -112,12 +136,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       selectedIds.includes(reservation.id),
     );
 
-    status.textContent = `Preparing ${selectedEvents.length} events for download...`;
+    try {
+      status.textContent = `Preparing ${selectedEvents.length} events for download...`;
 
-    const icsString = generateICS(selectedEvents);
-    downloadICSFile(icsString);
+      const icsString = generateICS(selectedEvents);
+      downloadICSFile(icsString);
 
-    status.textContent = "Download complete!";
+      status.textContent = "Download complete!";
+    } catch (error) {
+      status.textContent = `iCalendar export failed: ${error.message}`;
+    }
   });
 
   // Export to Google Calendar
@@ -149,13 +177,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         },
       );
 
-      if (result.failed === 0 && result.skipped === 0) {
-        status.textContent = `Added ${result.success} events to Google Calendar!`;
-      } else if (result.failed === 0) {
-        status.textContent = `${result.success} added, ${result.skipped} already in calendar.`;
-      } else {
-        status.textContent = `${result.success} added, ${result.skipped} already in calendar, ${result.failed} failed.`;
-      }
+      const parts = [`${result.success} added`];
+      if (result.skipped > 0) parts.push(`${result.skipped} already in calendar`);
+      if (result.failed > 0) parts.push(`${result.failed} failed`);
+
+      // Only worth mentioning when something actually went in that we could not
+      // check first; if nothing was added there is nothing to look for.
+      status.textContent =
+        result.unchecked > 0 && result.success > 0
+          ? `${parts.join(", ")}. Could not check for duplicates — look for repeats.`
+          : `${parts.join(", ")}.`;
     } catch (err) {
       status.textContent = `Google export failed: ${err.message}`;
     }

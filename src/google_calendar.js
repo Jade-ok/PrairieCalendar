@@ -1,3 +1,5 @@
+import { buildCalendarDescription } from "./calendar_event.js";
+
 const WEBFLOW_OAUTH_CLIENT_ID =
   "958094905068-rv830auvkppner94h8e7irdg7s2njcie.apps.googleusercontent.com";
 
@@ -83,31 +85,66 @@ async function getAuthToken() {
   return getAuthTokenViaWebAuthFlow();
 }
 
-async function isDuplicate(token, event) {
-  const startTime = new Date(event.startISO);
+async function readGoogleError(res, fallbackMessage) {
+  try {
+    const data = await res.json();
+    return data.error?.message || fallbackMessage;
+  } catch {
+    return fallbackMessage;
+  }
+}
+
+// Ask Google only about the minute around this exam. A duplicate is an event at
+// the same time with the same title and location, so a wider window would read
+// calendar data the check has no use for.
+export async function isDuplicateCalendarEvent(token, event) {
+  const startTime = new Date(event.startISO).getTime();
+  if (Number.isNaN(startTime)) {
+    throw new Error("Cannot check Google Calendar with an invalid start time.");
+  }
+
   const params = new URLSearchParams();
-  params.set("timeMin", new Date(startTime.getTime() - 60000).toISOString());
-  params.set("timeMax", new Date(startTime.getTime() + 60000).toISOString());
+  params.set("timeMin", new Date(startTime - 60000).toISOString());
+  params.set("timeMax", new Date(startTime + 60000).toISOString());
   params.set("singleEvents", "true");
+
   const res = await fetch(
     `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
-    { headers: { Authorization: `Bearer ${token}` } }
+    { headers: { Authorization: `Bearer ${token}` } },
   );
-  if (!res.ok) return false;
+
+  // A failed lookup is not an answer. Reporting "no duplicate" here would let the
+  // caller create an event that is already in the calendar.
+  if (!res.ok) {
+    const message = await readGoogleError(
+      res,
+      "Failed to check Google Calendar for existing events.",
+    );
+    throw new Error(`Failed to check Google Calendar: ${message}`);
+  }
+
   const data = await res.json();
-  return (data.items ?? []).some(
-    (item) => item.summary === event.title && item.location === event.location
-  );
+  return (data.items ?? []).some((item) => {
+    const existingStart = new Date(
+      item.start?.dateTime ?? item.start?.date,
+    ).getTime();
+
+    return (
+      item.summary === event.title &&
+      item.location === event.location &&
+      Number.isFinite(existingStart) &&
+      Math.abs(existingStart - startTime) <= 60000
+    );
+  });
 }
 
 async function createCalendarEvent(token, event) {
-  if (await isDuplicate(token, event)) return { skipped: true };
-
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const timeZone =
+    event.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
   const body = {
     summary: event.title,
     location: event.location,
-    description: event.url || event.notes || "",
+    description: buildCalendarDescription(event),
     start: { dateTime: event.startISO, timeZone },
     end: { dateTime: event.endISO, timeZone },
   };
@@ -120,23 +157,42 @@ async function createCalendarEvent(token, event) {
     }
   );
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error?.message || "Failed to create event");
+    throw new Error(await readGoogleError(res, "Failed to create event"));
   }
   return res.json();
 }
 
-export async function exportToGoogleCalendar(events, onProgress) {
-  const token = await getAuthToken();
-  let success = 0, failed = 0, skipped = 0;
+export async function exportEventsWithToken(token, events, onProgress) {
+  let success = 0, failed = 0, skipped = 0, unchecked = 0;
+
   for (let i = 0; i < events.length; i++) {
     try {
-      const result = await createCalendarEvent(token, events[i]);
-      result.skipped ? skipped++ : success++;
+      let duplicate = false;
+      try {
+        duplicate = await isDuplicateCalendarEvent(token, events[i]);
+      } catch {
+        // The lookup failed, so we do not know. Add the exam anyway: a missing
+        // exam costs the user a reminder they were counting on, while a second
+        // copy costs them one deletion. The count is reported so they know to
+        // look.
+        unchecked++;
+      }
+
+      if (duplicate) {
+        skipped++;
+      } else {
+        await createCalendarEvent(token, events[i]);
+        success++;
+      }
     } catch {
       failed++;
     }
     onProgress?.(i + 1, events.length);
   }
-  return { success, failed, skipped };
+  return { success, failed, skipped, unchecked };
+}
+
+export async function exportToGoogleCalendar(events, onProgress) {
+  const token = await getAuthToken();
+  return exportEventsWithToken(token, events, onProgress);
 }

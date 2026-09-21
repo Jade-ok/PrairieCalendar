@@ -16,23 +16,48 @@ const rawReservations = examCard
       .map(li => {
         // Get exam title from the link
         const title = li.querySelector('a')?.textContent.trim();
-        // Get date text (Mon, Feb 23, 1pm (PST))
-        const dateText = li.querySelector('[data-testid="date"]')?.textContent.trim();
+        const dateContainer = li.querySelector('[data-testid="date"]');
 
-        // Get the tooltip text from the tooltip
-        const tooltipText = li.querySelector('[data-bs-title]')?.getAttribute('data-bs-title') || "";
-       
+        // PrairieTest includes the canonical instant and source timezone in
+        // data-format-date.
+        const formattedDateElement = dateContainer?.matches('[data-format-date]')
+          ? dateContainer
+          : dateContainer?.querySelector('[data-format-date]');
+        const serializedDateData = formattedDateElement?.getAttribute('data-format-date');
+
+        let dateISO = "";
+        let timeZone = "";
+        if (serializedDateData) {
+          try {
+            const dateData = JSON.parse(serializedDateData);
+            dateISO = typeof dateData.date === "string" ? dateData.date : "";
+            timeZone = typeof dateData.timezone === "string" ? dateData.timezone : "";
+          } catch (error) {
+            console.warn("Could not parse PrairieTest date metadata:", error);
+          }
+        }
+
         // get location text
         const location = li.querySelector('[data-testid="location"]')?.textContent.trim();
         const link = li.querySelector('a')?.href;
-       
-        // Collect all visible text inside this reservation item
-        const rawText = [...li.querySelectorAll("div, span")]
-          .map(el => el.textContent.trim())
-          .filter(t => t.length > 0);
+
+        // The final unlabelled column contains duration and exam details.
+        // Read duration only from this column so numbers in titles or locations
+        // cannot affect the calculated end time.
+        const reservationRow = li.querySelector('.row');
+        const detailsContainer = [...(reservationRow?.children ?? [])]
+          .find(column => !column.hasAttribute('data-testid'));
+        const durationText = detailsContainer?.textContent.trim() ?? "";
 
         // Return a simple object for now; we'll parse it properly later.
-        return { title, dateText, tooltipText, location, link, rawText };
+        return {
+          title,
+          dateISO,
+          timeZone,
+          location,
+          link,
+          durationText,
+        };
       })
       .filter(x => x.title)
   : [];
