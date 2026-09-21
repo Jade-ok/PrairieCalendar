@@ -49,8 +49,13 @@ test("generateICS emits escaped text with CRLF line endings", () => {
       "DESCRIPTION:Line 1\\nLine 2\\n\\nhttps://us.prairietest.com/reservation/1\r\n",
     ),
   );
-  assert.ok(
-    ics.includes("URL:https://us.prairietest.com/reservation/1\r\n"),
+  // The link goes in the description only. Emitting it as a URL property too
+  // makes calendar apps show the same link twice.
+  assert.doesNotMatch(ics, /^URL:/m);
+  assert.equal(
+    ics.split("https://us.prairietest.com/reservation/1").length - 1,
+    1,
+    "the reservation link should appear exactly once",
   );
   assert.doesNotMatch(ics, /(?<!\r)\n/);
   assert.ok(ics.endsWith("END:VCALENDAR\r\n"));
