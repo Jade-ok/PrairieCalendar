@@ -1,24 +1,98 @@
 # PrairieCalendar
 
+Export your booked PrairieTest exams to **Google Calendar** or an **`.ics` file for Apple Calendar**—without copying dates by hand.
+
+**[Install PrairieCalendar from the Chrome Web Store (Click!)](https://chromewebstore.google.com/detail/PrairieCalendar/jfgdhmfkgejkgliebffeohcddbohldfk)**
+
+**Tested browsers:** Google Chrome, Brave, Arc, and Microsoft Edge.
+
+Built by **Team BlueberryPie (Jena & Jade)**.
+
+## How to Use
+
+> **Where to open the extension:** Finish booking your exam on PrairieTest, then click **Home** in the top navigation. Open PrairieCalendar when your booked exam appears under **Exam reservations**, as shown in the screenshot below.
+
 <p align="center">
-  <img src="assets/preview-main-ui.png" width="600">
+  <img src="assets/prairiecalendar-home-guide.png" width="600" alt="PrairieTest Home after booking: the middle Exam reservations section shows the exam name, date, time, and location">
 </p>
+
+
+
+### 1. Install and pin the extension
+
+Install PrairieCalendar using the Chrome Web Store link above, then pin it to your browser's toolbar for easy access.
+
+### 2. Complete your reservation and return to Home
+
+1. Sign in to PrairieTest and finish booking your exam date and time.
+2. Click **Home** in the top navigation.
+3. Check that your booked exam appears under **Exam reservations**, as shown in the Home screenshot above.
+
+
+### 3. Open PrairieCalendar and select your exams
+
+With your booked exam visible under **Exam reservations** on **Home**, click the PrairieCalendar icon. Select the exams you want to export using the checkboxes, or use **Select All**.
+
+### 4. Choose your calendar
+
+- **Export to Google Calendar:** Follow the Google sign-in and permission prompts if shown, then complete the export to add your selected exams directly to Google Calendar.
+- **Export to iCalendar:** Click this button to download an `.ics` file. Open the downloaded file to add the selected exams to Apple Calendar.
+
 <p align="center">
-  <img src="assets/checkbox-selection-ui.png" width="600">
+  <img src="assets/prairiecalendar-export-guide.png" width="600" alt="PrairieCalendar popup with exams selected and the two export buttons at the bottom">
 </p>
 
+Here is the same reservation once it lands, either way:
 
-*A Chrome extension that extracts PrairieTest schedules and allows users to export them to their calendar with ease! No more manual labor to copy the schedule. Built with ❤️ by Team BlueberryPie (Jena & Jade).*
+| Exported to Google Calendar | Exported as an `.ics` file |
+| :---: | :---: |
+| <img src="assets/PrairieCalendar_google-calendar-view.png" alt="The exam on Google Calendar at its reserved time"> | <img src="assets/PrairieCalendar_icalendar-view.png" alt="The same exam in Apple Calendar after importing the .ics file"> |
 
-***WHAT'S NEW IN VER 3.0***
+After exporting, check the exam date, time, duration, and location in your calendar against the reservation on PrairieTest.
+
+## Important Notes
+
+- **PrairieCalendar exports existing bookings.** It does not book, change, or cancel exams on PrairieTest.
+- **Use Home with confirmed reservations.** The booking screen and individual reservation-details page are not the pages to export from.
+- **Changed or cancelled a reservation?** Check the corresponding event in your calendar and update or remove it if needed. Do not assume an earlier export still matches your current reservation.
+- **PrairieTest is your reference for exam details.** Always confirm your latest reservation details and exam instructions there.
+
+## Troubleshooting
+
+Most messages in the popup say what to do. These four do not.
+
+| Message | What it means |
+| --- | --- |
+| `No raw reservations found.` | PrairieCalendar reads the **Home** page. Sign in to PrairieTest, open Home, and check that your exam is listed under **Exam reservations** — then reopen the popup. |
+| `Check the exam time` under a reservation | The exam's length could not be read, so the end time is a one-hour guess. The start time is still correct. Check the length on PrairieTest and fix the event after exporting. |
+| `Google export failed: ...` | Finish the Google sign-in and permission prompts, then export again. If it keeps failing, send us the message. |
+| `Download complete!`, but Apple Calendar has nothing new | The file is downloaded, not imported. Open **`PrairieTest_Exams.ics`** or drag it into Apple Calendar. |
+
+## What It Does
+
+PrairieCalendar turns a wall of HTML text into a neatly formatted schedule.
+
+- **Smart Extraction:** Parses all schedule data directly from the PrairieTest webpage.
+- **Selective Exporting:** Only want your finals in the calendar? Pick the exams you want via a clean checkbox UI, or take them all with **Select All**.
+- **Instant `.ics` Generation:** Converts your selected schedules into an iCalendar file you can drag and drop into Apple Calendar.
+- **Google Calendar Support:** Export your selected schedules directly to Google Calendar with one click, added for you through the Google Calendar API.
+- **No Duplicate Events:** Export the same exam twice and you still end up with one event. 
+- **Correct Times, Any Timezone:** Dynamically extracts absolute UTC timestamps directly from the PrairieTest DOM, so the extension isn't tied to one university's academic term structure or timezone.
+- **Sleek Yet Cute UI:** Displays the full list of reservations in a clean popup, complete with custom Figma-designed icons and our signature "Deep Blueberry" and "Pie Crust" team color palette. (Because, why not?)
+
+<p align="center">
+  <img src="assets/real-usage-popup-overlay.png" width="600">
+</p>
+
+## What's New
+
+**Version 3.0**
 
 *🌐 **Expanded Browser Support**: Google Calendar export now works across Chrome, Brave, Arc, and Microsoft Edge. Chrome keeps its native Google sign-in flow, while supported Chromium-based browsers use a compatible OAuth flow.*
 
-***WHAT'S NEW IN VER 2.1***
+**Version 2.1**
 
-*🌍 **Universal University Support**: Re-engineered the DOM parsing logic to dynamically extract absolute UTC timestamps and timezone data. PrairieCalendar is now 100% compatible with any university’s academic term structure across North America!*
-
-*🐛 **Bug Fix**: Removed hardcoded timezone dependencies to prevent calendar sync errors for non-PST/PDT users.*
+*🌍 **Universal University Support**: Re-engineered the DOM parsing logic to dynamically extract absolute UTC timestamps and timezone data, replacing the hardcoded timezone assumptions that caused sync errors for anyone outside PST/PDT.*
 
 ## Why We Built This
 
@@ -28,67 +102,60 @@ We stared at the PrairieTest interface and asked the golden question: *Why is th
 
 We present to you the **PrairieCalendar**: a lightweight tool designed to manage our chaotic (or endless!) exam schedules seamlessly.
 
-<p align="center">
-  <img src="assets/export-preview-ui.png" width="600">
-</p>
+## The Impact
 
-## What It Does
+What started as a fix for our own UBC schedules turned out to have a wider reach. PrairieTest isn't a UBC system — it's an assessment platform used by institutions across North America, and their students copy exam times by hand exactly like we did.
 
-PrairieCalendar turns a wall of HTML text into a neatly formatted schedule.
-
-- **Smart Extraction:** Parses all schedule data directly from the PrairieTest webpage.
-- **Sleek Yet Cute UI:** Displays the full list of reservations in a clean popup, complete with custom Figma-designed icons and our signature "Deep Blueberry" and "Pie Crust" team color palette. (Because, why not?)
-- **Selective Exporting:** You’ve already downloaded some schedules before? We allow users to select specific events via a clean checkbox UI!
-- **Instant `.ics` Generation:** Converts your selected schedules into a valid iCalendar file so you can drag and drop it into Apple Calendar or Outlook.
-- **Google Calendar Support:** Export your selected schedules directly to Google Calendar with one click. Events are added instantly via the Google Calendar API, with built-in duplicate detection and expanded support for Chrome, Brave, Arc, and Microsoft Edge.
-- **Universal University Support(new!):** Dynamically extracts absolute UTC timestamps directly from the PrairieTest DOM, making the extension 100% compatible with any university's academic term structure and local timezone.
-
-<p align="center">
-  <img src="assets/real-usage-popup-overlay.png" width="600">
-</p>
-
+So we built for that from the start, with nothing in the extension tied to our own campus. We've tested it at UBC so far, and we hope it spreads to every campus on the platform.
 
 ## Built With
 
 - **Vanilla JavaScript**
 - **Chrome Extension Manifest V3**
 - **HTML, CSS**
-- **Chrome storage.local API**
+- **Google Calendar API**
+- **Google OAuth 2.0**
 - **iCalendar (.ics) file format**
 - **Figma (UI/UX Design)**
 - **Git & GitHub**
 
 ## Under the Hood
 
+![PrairieCalendar architecture](assets/architecture.png)
+
 This project was an exercise in shipping a clean Minimum Viable Product (MVP) using Vanilla JavaScript, without over-engineering.
 
+**From reservation to calendar event**
+
+1. `content.js` reads the PrairieTest page and pulls out each reservation — the exact timestamp, the exam's timezone, how long it runs, the title and location — then saves them with `chrome.storage.local`.
+2. `parser.js` checks those timestamps and works out each exam's end time.
+3. `popup.js` renders the list you pick from.
+4. `ics.js` writes the calendar file, or `google_calendar.js` signs you in and talks to the Calendar API. Both go through `calendar_event.js`, so an exam is described the same way either way.
+
+**What we cared about**
+
 - **Privacy First:** There is no database required. All processing is done locally inside the extension to protect student data.
-- **The Architecture:** Our `content.js` script extracts the raw schedule data, `parser.js` standardizes the formatting, and `popup.js` renders the selectable list. Once the user selects their events, `ics.js` generates the file.
-- **Data Scrubbing:** We built custom parsing logic to handle edge cases, like converting academic term codes (e.g., 2025W2) into accurate calendar years and using JS `Set` objects to strip out duplicate DOM text blobs.
+- **Reading Data, Not Text:** PrairieTest publishes each exam's exact instant and timezone in the page, alongside the time it shows on screen. We read those values instead of re-parsing the screen, which is what keeps an exam at the right time whatever timezone the browser is set to.
+- **Tested Where It Matters:** 18 automated tests cover the timestamp parsing, the iCalendar output and the Google export path, and the suite runs under several timezone settings.
 
 ## The Design: UI/UX Matters
 
+
+<p align="center">
+  <img src="assets/preview-main-ui.png" width="600">
+</p>
+
+<p align="center">
+  <img src="assets/checkbox-selection-ui.png" width="600">
+</p>
+
+
 We strongly believe that a utility tool shouldn't look like a 1990s spreadsheet. To ensure a sleek, intuitive user experience, the entire interface was meticulously prototyped in **Figma** before a single line of CSS was written.
 
-Because our team name is **BlueberryPie**, we decided to bake that identity directly into our design system. Our custom UI features a crisp "Deep Blueberry" primary color for sharp, professional branding, perfectly accented by a warm "Pie Crust" gold to make our Call-to-Action buttons pop. It is clean, modern, and exceptionally easy on the eyes during those late-night, caffeine-fueled study sessions. 
+Because our team name is **BlueberryPie**, we decided to bake that identity directly into our design system. Our custom UI features a crisp "Deep Blueberry" primary color for sharp, professional branding, perfectly accented by a warm "Pie Crust" gold to make our Call-to-Action buttons pop. It is clean, modern, and exceptionally easy on the eyes during those late-night, caffeine-fueled study sessions.
 
-## The Impact
+## For Developers
 
-What started as a desperate attempt to organize our own UBC schedules quickly revealed a much larger opportunity. PrairieTest.com isn't just a local testing facility; it's an assessment platform heavily utilized by multiple institutions across North America.
-
-The pain point of manual exam tracking isn't an isolated incident—it is a universal headache for thousands of students every single semester. By engineering PrairieCalendar to dynamically parse DOM data and absolute UTC timestamps, we built a highly scalable extension that is entirely timezone-agnostic. We aren't just solving a localized inconvenience. We have shipped a tool capable of instantly streamlining the academic workflows of university students continent-wide.
-
-## Get the Extension!
-
-- **For the Students (The Easy Way):**
-We are officially shipping this! You can grab it directly from the Chrome Web Store:
-
-[PrairieCalendar on Chrome Web Store](https://chromewebstore.google.com/detail/PrairieCalendar/jfgdhmfkgejkgliebffeohcddbohldfk)
-
-
-Just click "Add to Chrome," then pin the extension. PrairieCalendar also supports Brave, Arc, and Microsoft Edge when installed as a Chromium extension.
-
-- **For the Devs (The Fun Way):**
 Want to peek under the hood or contribute? You can run it locally:
 
 1. Clone this repository.
@@ -113,8 +180,9 @@ PrairieCalendar does not access or modify data on any other websites.
 
 For questions, bug reports, or feature requests, feel free to reach out:
 
-📧 team-blueberrypie@googlegroups.com
+📧 team.blueberrypie@gmail.com
 
 <p align="center">
   <img src="assets/bbp_branding1.png" width="600">
 </p>
+
