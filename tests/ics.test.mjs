@@ -14,6 +14,7 @@ const validEvent = {
   startISO: "2026-10-03T23:00:00.000Z",
   endISO: "2026-10-03T23:50:00.000Z",
   notes: "Line 1\nLine 2",
+  url: "https://us.prairietest.com/reservation/1",
 };
 
 test("escapeICSText escapes RFC 5545 text delimiters and newlines", () => {
@@ -43,7 +44,14 @@ test("generateICS emits escaped text with CRLF line endings", () => {
   assert.ok(
     ics.includes("LOCATION:ICCS 008\\, Basement\\; west\\nEntrance B\r\n"),
   );
-  assert.ok(ics.includes("DESCRIPTION:Line 1\\nLine 2\r\n"));
+  assert.ok(
+    ics.includes(
+      "DESCRIPTION:Line 1\\nLine 2\\n\\nhttps://us.prairietest.com/reservation/1\r\n",
+    ),
+  );
+  assert.ok(
+    ics.includes("URL:https://us.prairietest.com/reservation/1\r\n"),
+  );
   assert.doesNotMatch(ics, /(?<!\r)\n/);
   assert.ok(ics.endsWith("END:VCALENDAR\r\n"));
 });
@@ -51,7 +59,11 @@ test("generateICS emits escaped text with CRLF line endings", () => {
 test("generateICS rejects events without valid timestamps", () => {
   assert.throws(
     () => generateICS([{ ...validEvent, startISO: null }]),
-    /without a valid start time/,
+    /require a valid date and time/,
+  );
+  assert.throws(
+    () => generateICS([{ ...validEvent, startISO: "2026-10-03T23:00:00" }]),
+    /explicit UTC offset/,
   );
   assert.throws(
     () => generateICS([{ ...validEvent, endISO: "not-a-date" }]),

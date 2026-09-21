@@ -1,3 +1,5 @@
+import { buildCalendarDescription } from "./calendar_event.js";
+
 const CRLF = "\r\n";
 const textEncoder = new TextEncoder();
 
@@ -47,34 +49,43 @@ function foldICSLine(line) {
   return segments.join(CRLF);
 }
 
+function formatICSURI(value) {
+  return String(value ?? "").trim().replace(/[\r\n]/g, "");
+}
+
 function validateEvent(event) {
-  let start;
+  const title = event?.title || "Untitled event";
+  let formattedStart;
   try {
-    formatICSDate(event?.startISO);
-    start = new Date(event.startISO);
-  } catch {
+    formattedStart = formatICSDate(event?.startISO);
+  } catch (error) {
     throw new Error(
-      `Cannot export "${event?.title || "Untitled event"}" without a valid start time.`,
+      `Cannot export "${title}": ${error.message}`,
+      { cause: error },
     );
   }
 
+  let formattedEnd = null;
   if (event.endISO) {
-    let end;
     try {
-      formatICSDate(event.endISO);
-      end = new Date(event.endISO);
-    } catch {
+      formattedEnd = formatICSDate(event.endISO);
+    } catch (error) {
       throw new Error(
-        `Cannot export "${event.title || "Untitled event"}" with an invalid end time.`,
+        `Cannot export "${title}" with an invalid end time: ${error.message}`,
+        { cause: error },
       );
     }
 
+    const start = new Date(event.startISO);
+    const end = new Date(event.endISO);
     if (end <= start) {
       throw new Error(
-        `Cannot export "${event.title || "Untitled event"}" with an invalid end time.`,
+        `Cannot export "${title}" with an invalid end time.`,
       );
     }
   }
+
+  return { formattedStart, formattedEnd };
 }
 
 export function generateICS(events) {
@@ -91,26 +102,31 @@ export function generateICS(events) {
   ];
 
   events.forEach((event, index) => {
-    validateEvent(event);
+    const { formattedStart, formattedEnd } = validateEvent(event);
 
     const uid = event.id || `${Date.now()}-${index}@prairiecalendar`;
     lines.push(
       "BEGIN:VEVENT",
       `UID:${escapeICSText(uid)}`,
       `DTSTAMP:${generatedAt}`,
-      `DTSTART:${formatICSDate(event.startISO)}`,
+      `DTSTART:${formattedStart}`,
     );
 
-    if (event.endISO) {
-      lines.push(`DTEND:${formatICSDate(event.endISO)}`);
+    if (formattedEnd) {
+      lines.push(`DTEND:${formattedEnd}`);
     }
 
+    const description = buildCalendarDescription(event);
     lines.push(
       `SUMMARY:${escapeICSText(event.title)}`,
       `LOCATION:${escapeICSText(event.location)}`,
-      `DESCRIPTION:${escapeICSText(event.notes)}`,
-      "END:VEVENT",
+      `DESCRIPTION:${escapeICSText(description)}`,
     );
+
+    const eventURL = formatICSURI(event.url);
+    if (eventURL) lines.push(`URL:${eventURL}`);
+
+    lines.push("END:VEVENT");
   });
 
   lines.push("END:VCALENDAR");

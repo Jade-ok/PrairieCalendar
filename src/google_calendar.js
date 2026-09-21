@@ -1,3 +1,5 @@
+import { buildCalendarDescription } from "./calendar_event.js";
+
 const WEBFLOW_OAUTH_CLIENT_ID =
   "958094905068-rv830auvkppner94h8e7irdg7s2njcie.apps.googleusercontent.com";
 
@@ -83,32 +85,80 @@ async function getAuthToken() {
   return getAuthTokenViaWebAuthFlow();
 }
 
-async function isDuplicate(token, event) {
-  const startTime = new Date(event.startISO);
+async function readGoogleError(res, fallbackMessage) {
+  try {
+    const data = await res.json();
+    return data.error?.message || fallbackMessage;
+  } catch {
+    return fallbackMessage;
+  }
+}
+
+export async function fetchExistingCalendarEvents(token, events) {
+  if (events.length === 0) return [];
+
+  const startTimes = events.map((event) => new Date(event.startISO).getTime());
+  if (startTimes.some(Number.isNaN)) {
+    throw new Error("Cannot check Google Calendar with an invalid start time.");
+  }
+
   const params = new URLSearchParams();
-  params.set("timeMin", new Date(startTime.getTime() - 60000).toISOString());
-  params.set("timeMax", new Date(startTime.getTime() + 60000).toISOString());
+  params.set("timeMin", new Date(Math.min(...startTimes) - 60000).toISOString());
+  params.set("timeMax", new Date(Math.max(...startTimes) + 60000).toISOString());
   params.set("singleEvents", "true");
-  const res = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  if (!res.ok) return false;
-  const data = await res.json();
-  return (data.items ?? []).some(
-    (item) => item.summary === event.title && item.location === event.location
-  );
+  params.set("maxResults", "2500");
+
+  const existingEvents = [];
+  let pageToken = null;
+
+  do {
+    if (pageToken) params.set("pageToken", pageToken);
+
+    const res = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+    if (!res.ok) {
+      const message = await readGoogleError(
+        res,
+        "Failed to check Google Calendar for existing events.",
+      );
+      throw new Error(`Failed to check Google Calendar: ${message}`);
+    }
+
+    const data = await res.json();
+    existingEvents.push(...(data.items ?? []));
+    pageToken = data.nextPageToken ?? null;
+  } while (pageToken);
+
+  return existingEvents;
+}
+
+export function isDuplicateCalendarEvent(existingEvents, event) {
+  const eventStart = new Date(event.startISO).getTime();
+
+  return existingEvents.some((item) => {
+    const existingStart = new Date(
+      item.start?.dateTime ?? item.start?.date,
+    ).getTime();
+
+    return (
+      item.summary === event.title &&
+      item.location === event.location &&
+      Number.isFinite(existingStart) &&
+      Math.abs(existingStart - eventStart) <= 60000
+    );
+  });
 }
 
 async function createCalendarEvent(token, event) {
-  if (await isDuplicate(token, event)) return { skipped: true };
-
   const timeZone =
     event.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
   const body = {
     summary: event.title,
     location: event.location,
-    description: event.url || event.notes || "",
+    description: buildCalendarDescription(event),
     start: { dateTime: event.startISO, timeZone },
     end: { dateTime: event.endISO, timeZone },
   };
@@ -121,23 +171,35 @@ async function createCalendarEvent(token, event) {
     }
   );
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error?.message || "Failed to create event");
+    throw new Error(await readGoogleError(res, "Failed to create event"));
   }
   return res.json();
 }
 
-export async function exportToGoogleCalendar(events, onProgress) {
-  const token = await getAuthToken();
+export async function exportEventsWithToken(token, events, onProgress) {
+  const existingEvents = await fetchExistingCalendarEvents(token, events);
   let success = 0, failed = 0, skipped = 0;
+
   for (let i = 0; i < events.length; i++) {
     try {
+      if (isDuplicateCalendarEvent(existingEvents, events[i])) {
+        skipped++;
+        onProgress?.(i + 1, events.length);
+        continue;
+      }
+
       const result = await createCalendarEvent(token, events[i]);
-      result.skipped ? skipped++ : success++;
+      existingEvents.push(result);
+      success++;
     } catch {
       failed++;
     }
     onProgress?.(i + 1, events.length);
   }
   return { success, failed, skipped };
+}
+
+export async function exportToGoogleCalendar(events, onProgress) {
+  const token = await getAuthToken();
+  return exportEventsWithToken(token, events, onProgress);
 }
