@@ -18,12 +18,8 @@ const rawReservations = examCard
         const title = li.querySelector('a')?.textContent.trim();
         const dateContainer = li.querySelector('[data-testid="date"]');
 
-        // Keep the visible date text as a fallback for older PrairieTest markup.
-        const dateText = dateContainer?.textContent.trim();
-
         // PrairieTest includes the canonical instant and source timezone in
-        // data-format-date. Prefer that data over reparsing the displayed time,
-        // which may otherwise be interpreted in the browser's local timezone.
+        // data-format-date.
         const formattedDateElement = dateContainer?.matches('[data-format-date]')
           ? dateContainer
           : dateContainer?.querySelector('[data-format-date]');
@@ -41,28 +37,26 @@ const rawReservations = examCard
           }
         }
 
-        // Get the tooltip text from the tooltip
-        const tooltipText = li.querySelector('[data-bs-title]')?.getAttribute('data-bs-title') || "";
-       
         // get location text
         const location = li.querySelector('[data-testid="location"]')?.textContent.trim();
         const link = li.querySelector('a')?.href;
-       
-        // Collect all visible text inside this reservation item
-        const rawText = [...li.querySelectorAll("div, span")]
-          .map(el => el.textContent.trim())
-          .filter(t => t.length > 0);
+
+        // The final unlabelled column contains duration and exam details.
+        // Read duration only from this column so numbers in titles or locations
+        // cannot affect the calculated end time.
+        const reservationRow = li.querySelector('.row');
+        const detailsContainer = [...(reservationRow?.children ?? [])]
+          .find(column => !column.hasAttribute('data-testid'));
+        const durationText = detailsContainer?.textContent.trim() ?? "";
 
         // Return a simple object for now; we'll parse it properly later.
         return {
           title,
-          dateText,
           dateISO,
           timeZone,
-          tooltipText,
           location,
           link,
-          rawText,
+          durationText,
         };
       })
       .filter(x => x.title)

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   parseAbsoluteDate,
+  parseDurationMinutes,
   parseReservation,
 } from "../src/parser.js";
 
@@ -27,7 +28,7 @@ test("parseReservation prefers the canonical timestamp over displayed text", () 
     tooltipText: "2026-03-23 16:00:00 (Pacific Daylight Time)",
     location: "UBC",
     link: "reservation-1",
-    rawText: ["60 min"],
+    durationText: "60 min, In-person, No accommodations",
   });
 
   assert.equal(event.startISO, "2026-03-23T23:00:00.000Z");
@@ -40,9 +41,27 @@ test("parseReservation rejects legacy data without a canonical timestamp", () =>
     title: "Legacy Exam",
     dateText: "Mon, Mar 23, 4pm (PDT)",
     tooltipText: "2026-03-23 16:00:00 (Pacific Daylight Time)",
-    rawText: ["60 min"],
+    durationText: "60 min",
   });
 
   assert.equal(event.startISO, null);
   assert.equal(event.endISO, null);
+});
+
+test("parseDurationMinutes supports minute and hour durations", () => {
+  assert.equal(parseDurationMinutes("50 min, In-person"), 50);
+  assert.equal(parseDurationMinutes("2 h 10 min, In-person"), 130);
+  assert.equal(parseDurationMinutes("1 hour 5 minutes"), 65);
+});
+
+test("parseReservation ignores duration-like text outside the details column", () => {
+  const event = parseReservation({
+    title: "MATH 100: 2 hr midterm review",
+    dateISO: "2026-10-03T23:00:00.000Z",
+    location: "Room 3h Annex",
+    durationText: "50 min, In-person, No accommodations",
+    rawText: ["MATH 100: 2 hr midterm review", "Room 3h Annex", "50 min"],
+  });
+
+  assert.equal(event.endISO, "2026-10-03T23:50:00.000Z");
 });

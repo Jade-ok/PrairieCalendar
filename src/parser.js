@@ -14,15 +14,19 @@ export function parseAbsoluteDate(dateISO) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-// Extract duration from raw text array.
+// Extract duration from the reservation details column.
 // Supports formats like:
 //   "50 min"
 //   "2 h 10 min"
-export function parseDurationMinutes(rawTextArr) {
-  const text = (rawTextArr || []).join(" ");
+export function parseDurationMinutes(durationText) {
+  if (typeof durationText !== "string") return null;
 
-  const hourMatch = text.match(/(\d+)\s*h/i);
-  const minMatch = text.match(/(\d+)\s*min/i);
+  const hourMatch = durationText.match(
+    /\b(\d+)\s*(?:h|hr|hrs|hour|hours)\b/i,
+  );
+  const minMatch = durationText.match(
+    /\b(\d+)\s*(?:m|min|mins|minute|minutes)\b/i,
+  );
 
   const hours = hourMatch ? Number(hourMatch[1]) : 0;
   const minutes = minMatch ? Number(minMatch[1]) : 0;
@@ -40,7 +44,7 @@ export function parseReservation(raw, defaultDurationMin = 60) {
   const start = parseAbsoluteDate(raw.dateISO);
 
   const durationMin =
-    parseDurationMinutes(raw.rawText) ?? defaultDurationMin;
+    parseDurationMinutes(raw.durationText) ?? defaultDurationMin;
 
   const end = start
     ? new Date(start.getTime() + durationMin * 60 * 1000)

@@ -13,7 +13,7 @@ test("exports a Vancouver exam as the same UTC instant in every local timezone",
     tooltipText: "2026-10-03 16:00:00 (Pacific Daylight Time)",
     location: "ORCA: ICCS 008",
     link: "reservation-3703025",
-    rawText: ["50 min"],
+    durationText: "50 min, In-person, No accommodations",
   });
 
   const ics = generateICS([event]);
