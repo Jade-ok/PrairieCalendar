@@ -119,12 +119,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       selectedIds.includes(reservation.id),
     );
 
-    status.textContent = `Preparing ${selectedEvents.length} events for download...`;
+    try {
+      status.textContent = `Preparing ${selectedEvents.length} events for download...`;
 
-    const icsString = generateICS(selectedEvents);
-    downloadICSFile(icsString);
+      const icsString = generateICS(selectedEvents);
+      downloadICSFile(icsString);
 
-    status.textContent = "Download complete!";
+      status.textContent = "Download complete!";
+    } catch (error) {
+      status.textContent = `iCalendar export failed: ${error.message}`;
+    }
   });
 
   // Export to Google Calendar

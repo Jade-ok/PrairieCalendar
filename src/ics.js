@@ -1,59 +1,131 @@
-// ics.js
-// TODO: Generate an .ics string from selected events.
+const CRLF = "\r\n";
+const textEncoder = new TextEncoder();
 
-export function generateICS(events) {
-  // 1. Start with the required calendar header
-  let icsString = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//PrairieCalendar//EN\n";
-
-  // 2. Loop through each event and append its details to the string
-  events.forEach(event => {
-    icsString += "BEGIN:VEVENT\n";
-    icsString += `UID:${event.id || Date.now()}\n`;
-    
-    // DTSTAMP is a required field showing when the file was generated
-    icsString += `DTSTAMP:${formatICSDate(new Date().toISOString())}\n`; 
-    
-    icsString += `DTSTART:${formatICSDate(event.startISO)}\n`;
-    if (event.endISO) {
-      icsString += `DTEND:${formatICSDate(event.endISO)}\n`;
-    }
-    
-    icsString += `SUMMARY:${event.title}\n`;
-    icsString += `LOCATION:${event.location}\n`;
-    
-    // iCal requires actual newlines inside descriptions to be escaped as "\n"
-    const safeNotes = (event.notes || "").replace(/\n/g, "\\n");
-    icsString += `DESCRIPTION:${safeNotes}\n`;
-    
-    icsString += "END:VEVENT\n";
-  });
-
-  // 3. Add the required calendar footer
-  icsString += "END:VCALENDAR";
-
-  return icsString;
+export function escapeICSText(value) {
+  return String(value ?? "")
+    .replace(/\\/g, "\\\\")
+    .replace(/\r\n|\r|\n/g, "\\n")
+    .replace(/,/g, "\\,")
+    .replace(/;/g, "\\;");
 }
 
-// Helper function to format our ISO strings into iCal's strict format
-function formatICSDate(isoString) {
-    if (!isoString) return "";
-    // This takes "2026-02-23T21:50:00.000Z" and turns it into "20260223T215000Z"
-    return isoString.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+export function formatICSDate(isoString) {
+  if (typeof isoString !== "string" || isoString.trim() === "") {
+    throw new Error("Calendar events require a valid date and time.");
   }
 
+  const normalizedISO = isoString.trim();
+  if (!/(?:Z|[+-]\d{2}:\d{2})$/i.test(normalizedISO)) {
+    throw new Error("Calendar event times require an explicit UTC offset.");
+  }
 
-  // Function to force the browser to download the text as a file
+  const date = new Date(normalizedISO);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error("Calendar events require a valid date and time.");
+  }
+
+  return date
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
+}
+
+function foldICSLine(line) {
+  const segments = [];
+  let segment = "";
+
+  for (const character of line) {
+    if (textEncoder.encode(segment + character).length > 75) {
+      segments.push(segment);
+      segment = ` ${character}`;
+    } else {
+      segment += character;
+    }
+  }
+
+  segments.push(segment);
+  return segments.join(CRLF);
+}
+
+function validateEvent(event) {
+  let start;
+  try {
+    formatICSDate(event?.startISO);
+    start = new Date(event.startISO);
+  } catch {
+    throw new Error(
+      `Cannot export "${event?.title || "Untitled event"}" without a valid start time.`,
+    );
+  }
+
+  if (event.endISO) {
+    let end;
+    try {
+      formatICSDate(event.endISO);
+      end = new Date(event.endISO);
+    } catch {
+      throw new Error(
+        `Cannot export "${event.title || "Untitled event"}" with an invalid end time.`,
+      );
+    }
+
+    if (end <= start) {
+      throw new Error(
+        `Cannot export "${event.title || "Untitled event"}" with an invalid end time.`,
+      );
+    }
+  }
+}
+
+export function generateICS(events) {
+  if (!Array.isArray(events) || events.length === 0) {
+    throw new Error("Select at least one valid event to export.");
+  }
+
+  const generatedAt = formatICSDate(new Date().toISOString());
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//PrairieCalendar//EN",
+    "CALSCALE:GREGORIAN",
+  ];
+
+  events.forEach((event, index) => {
+    validateEvent(event);
+
+    const uid = event.id || `${Date.now()}-${index}@prairiecalendar`;
+    lines.push(
+      "BEGIN:VEVENT",
+      `UID:${escapeICSText(uid)}`,
+      `DTSTAMP:${generatedAt}`,
+      `DTSTART:${formatICSDate(event.startISO)}`,
+    );
+
+    if (event.endISO) {
+      lines.push(`DTEND:${formatICSDate(event.endISO)}`);
+    }
+
+    lines.push(
+      `SUMMARY:${escapeICSText(event.title)}`,
+      `LOCATION:${escapeICSText(event.location)}`,
+      `DESCRIPTION:${escapeICSText(event.notes)}`,
+      "END:VEVENT",
+    );
+  });
+
+  lines.push("END:VCALENDAR");
+  return `${lines.map(foldICSLine).join(CRLF)}${CRLF}`;
+}
+
 export function downloadICSFile(icsString, filename = "PrairieTest_Exams.ics") {
-    // A "Blob" is just a way to hold raw data in JavaScript
-    const blob = new Blob([icsString], { type: "text/calendar;charset=utf-8" });
-    
-    // Create a temporary, invisible HTML link
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    
-    // Attach the link to the page, click it programmatically, and then remove it
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
+  const blob = new Blob([icsString], { type: "text/calendar;charset=utf-8" });
+  const link = document.createElement("a");
+  const objectURL = URL.createObjectURL(blob);
+
+  link.href = objectURL;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(objectURL);
+}
