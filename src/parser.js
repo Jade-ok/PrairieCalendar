@@ -9,6 +9,20 @@ export function extractYearFromTooltip(tooltipStr, fallbackYear = new Date().get
     return match ? Number(match[1]) : fallbackYear;
   }
 
+// Parse PrairieTest's canonical ISO timestamp. Because the timestamp contains
+// a UTC offset (normally "Z"), it represents the same instant in every browser
+// timezone.
+export function parseAbsoluteDate(dateISO) {
+  if (typeof dateISO !== "string") return null;
+
+  const normalizedDateISO = dateISO.trim();
+  const hasExplicitOffset = /(?:Z|[+-]\d{2}:\d{2})$/i.test(normalizedDateISO);
+  if (!hasExplicitOffset) return null;
+
+  const date = new Date(normalizedDateISO);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 // Convert text like:
 // "Mon, Feb 23, 1pm (PST)"
 // into a JavaScript Date object in the local timezone.
@@ -77,7 +91,8 @@ export function parseDurationMinutes(rawTextArr) {
 export function parseReservation(raw, defaultDurationMin = 60) {
 //   const year = yearFromTitle(raw.title);
   const exactYear = extractYearFromTooltip(raw.tooltipText);
-  const start = parseDateText(raw.dateText, exactYear);
+  const start =
+    parseAbsoluteDate(raw.dateISO) ?? parseDateText(raw.dateText, exactYear);
 
   const durationMin =
     parseDurationMinutes(raw.rawText) ?? defaultDurationMin;
@@ -102,6 +117,7 @@ export function parseReservation(raw, defaultDurationMin = 60) {
     url: raw.link ?? "",
     startISO: start ? start.toISOString() : null,
     endISO: end ? end.toISOString() : null,
+    timeZone: raw.timeZone ?? "",
     notes: "",
   };
 }

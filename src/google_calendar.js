@@ -103,7 +103,8 @@ async function isDuplicate(token, event) {
 async function createCalendarEvent(token, event) {
   if (await isDuplicate(token, event)) return { skipped: true };
 
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const timeZone =
+    event.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
   const body = {
     summary: event.title,
     location: event.location,

@@ -16,8 +16,30 @@ const rawReservations = examCard
       .map(li => {
         // Get exam title from the link
         const title = li.querySelector('a')?.textContent.trim();
-        // Get date text (Mon, Feb 23, 1pm (PST))
-        const dateText = li.querySelector('[data-testid="date"]')?.textContent.trim();
+        const dateContainer = li.querySelector('[data-testid="date"]');
+
+        // Keep the visible date text as a fallback for older PrairieTest markup.
+        const dateText = dateContainer?.textContent.trim();
+
+        // PrairieTest includes the canonical instant and source timezone in
+        // data-format-date. Prefer that data over reparsing the displayed time,
+        // which may otherwise be interpreted in the browser's local timezone.
+        const formattedDateElement = dateContainer?.matches('[data-format-date]')
+          ? dateContainer
+          : dateContainer?.querySelector('[data-format-date]');
+        const serializedDateData = formattedDateElement?.getAttribute('data-format-date');
+
+        let dateISO = "";
+        let timeZone = "";
+        if (serializedDateData) {
+          try {
+            const dateData = JSON.parse(serializedDateData);
+            dateISO = typeof dateData.date === "string" ? dateData.date : "";
+            timeZone = typeof dateData.timezone === "string" ? dateData.timezone : "";
+          } catch (error) {
+            console.warn("Could not parse PrairieTest date metadata:", error);
+          }
+        }
 
         // Get the tooltip text from the tooltip
         const tooltipText = li.querySelector('[data-bs-title]')?.getAttribute('data-bs-title') || "";
@@ -32,7 +54,16 @@ const rawReservations = examCard
           .filter(t => t.length > 0);
 
         // Return a simple object for now; we'll parse it properly later.
-        return { title, dateText, tooltipText, location, link, rawText };
+        return {
+          title,
+          dateText,
+          dateISO,
+          timeZone,
+          tooltipText,
+          location,
+          link,
+          rawText,
+        };
       })
       .filter(x => x.title)
   : [];
