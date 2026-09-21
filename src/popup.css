@@ -180,6 +180,14 @@ body {
   line-height: 1.1;
 }
 
+.res-notice {
+  margin-top: 3px;
+  color: #b25f00;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1.1;
+}
+
 /* Footer */
 .footer {
   background: var(--navy);

@@ -65,3 +65,25 @@ test("parseReservation ignores duration-like text outside the details column", (
 
   assert.equal(event.endISO, "2026-10-03T23:50:00.000Z");
 });
+
+test("parseReservation flags an end time that fell back to the default", () => {
+  const raw = {
+    title: "CPSC 213 (2025W2): Final Exam",
+    dateISO: "2026-10-03T23:00:00.000Z",
+    location: "ICCS X251",
+    link: "reservation-1",
+  };
+
+  const readable = parseReservation({
+    ...raw,
+    durationText: "2 h 10 min, In-person",
+  });
+  assert.equal(readable.endTimeEstimated, false);
+  assert.equal(readable.endISO, "2026-10-04T01:10:00.000Z");
+
+  // The details column is missing or restructured, so the 60-minute default
+  // invents an end time that the popup must not present as confirmed.
+  const unreadable = parseReservation({ ...raw, durationText: "" });
+  assert.equal(unreadable.endTimeEstimated, true);
+  assert.equal(unreadable.endISO, "2026-10-04T00:00:00.000Z");
+});

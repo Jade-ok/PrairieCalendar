@@ -43,8 +43,11 @@ export function parseDurationMinutes(durationText) {
 export function parseReservation(raw, defaultDurationMin = 60) {
   const start = parseAbsoluteDate(raw.dateISO);
 
-  const durationMin =
-    parseDurationMinutes(raw.durationText) ?? defaultDurationMin;
+  // A missing duration falls back to defaultDurationMin, which silently moves
+  // the end time. Flag it so the popup can tell the user to check that exam
+  // rather than trusting an invented end time.
+  const parsedDurationMin = parseDurationMinutes(raw.durationText);
+  const durationMin = parsedDurationMin ?? defaultDurationMin;
 
   const end = start
     ? new Date(start.getTime() + durationMin * 60 * 1000)
@@ -59,5 +62,6 @@ export function parseReservation(raw, defaultDurationMin = 60) {
     endISO: end ? end.toISOString() : null,
     timeZone: raw.timeZone ?? "",
     notes: "",
+    endTimeEstimated: parsedDurationMin === null,
   };
 }

@@ -30,7 +30,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  status.textContent = `You've got ${parsedReservations.length} schedules lined up!`;
+  const estimatedCount = parsedReservations.filter(
+    (reservation) => reservation.endTimeEstimated,
+  ).length;
+
+  status.textContent =
+    estimatedCount === 0
+      ? `You've got ${parsedReservations.length} schedules lined up!`
+      : `You've got ${parsedReservations.length} schedules lined up! Check the exam time on ${estimatedCount} of them.`;
 
   // Render checkboxes
   parsedReservations.forEach((reservation) => {
@@ -57,6 +64,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     label.appendChild(titleDiv);
     label.appendChild(timeDiv);
+
+    if (reservation.endTimeEstimated) {
+      const noticeDiv = document.createElement("div");
+      noticeDiv.className = "res-notice";
+      noticeDiv.textContent = "Check the exam time";
+      label.appendChild(noticeDiv);
+    }
 
     row.appendChild(checkbox);
     row.appendChild(label);
