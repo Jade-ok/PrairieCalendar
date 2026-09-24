@@ -113,7 +113,7 @@ PrairieCalendar turns a wall of HTML text into a neatly formatted schedule.
 
 Let's set the scene: You are navigating the chaotic life of a CS student at UBC. You are constantly checking the PrairieTest webpage to book your quizzes, examlets, and final exams. You manually copy the dates into your calendar, aggressively double-checking the location and time because—let's face it—one typo means you might sleep through a midterm.💀 Panic ensues. 😞
 
-We stared at the PrairieTest interface and asked the golden question: *Why is there no "Export to Calendar" button?* We were tired of the manual data entry and the underlying anxiety of missing an exam. So, Jade and I decided to stop complaining and start coding.
+We stared at the PrairieTest interface and asked the golden question: *Why is there no "Export to Calendar" button?* We were tired of the manual data entry and the underlying anxiety of missing an exam. So, we decided to stop complaining and start coding.
 
 We present to you the **PrairieCalendar**: a lightweight tool designed to manage our chaotic (or endless!) exam schedules seamlessly.
 
